@@ -1,6 +1,6 @@
 # Writeup for The 2023 SANS Holiday Hack Challenge: A Holiday Odyssey \| Featuring 6: Geese A-Lei'ing!
 ## Game Cartridges: Vol 2
-Difficulty: :christmas_tree::christmas_tree::christmas_tree:
+Difficulty: :christmas_tree::christmas_tree::christmas_tree:  
 Find the second Gamegosling cartridge and beat the game
 
 ### Hints

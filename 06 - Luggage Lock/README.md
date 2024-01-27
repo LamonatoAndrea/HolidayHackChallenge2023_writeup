@@ -1,6 +1,6 @@
 # Writeup for The 2023 SANS Holiday Hack Challenge: A Holiday Odyssey \| Featuring 6: Geese A-Lei'ing!
 ## Luggage Lock
-Difficulty: :christmas_tree:    
+Difficulty: :christmas_tree:  
 Help Garland Candlesticks on the Island of Misfit Toys get back into his luggage by finding the correct position for all four dials.
 
 ### Hints
