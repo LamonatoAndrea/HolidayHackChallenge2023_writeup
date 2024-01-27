@@ -27,3 +27,6 @@ Even though I cheated, at the end you are presented with an “old-timey radio�
 | ![audio](imgs/audio.png) | `−−· ·−·· −−−−− ·−· −·−−` | `GL0RY` |
 
 And the flag is `GL0RY`, with a `0` not an `O`...that also took its time, and manual decoding 🙂
+
+### Thanks to @CaveVenom1
+You don’t know that, and maybe I should drop you a message on Discord, but I think I wouldn’t make it if it wasn’t for your message 🙂
