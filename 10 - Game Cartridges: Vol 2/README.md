@@ -30,3 +30,6 @@ And the flag is `GL0RY`, with a `0` not an `O`...that also took its time, and ma
 
 ### Thanks to @CaveVenom1
 You don’t know that, and maybe I should drop you a message on Discord, but I think I wouldn’t make it if it wasn’t for your message 🙂
+
+### Thanks to @i81b4u
+Thank you for showing me the path, once again 🙂
