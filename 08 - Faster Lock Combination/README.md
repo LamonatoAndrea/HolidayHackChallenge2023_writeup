@@ -11,7 +11,7 @@ By applying some tension so as to have the “Tension Status” indicator lookin
 
 #### The third digit
 A little more math gives us the remainder to watch out for $r = n1 / 4 = 18 / 4 = 4 R 2$. Based on the guess number, we can write down a table such as the following with eligible ones highlighted in green:
-| aaaaaaaaaaaa | aaa | aaaaaaaaaaaaa | aaaaaaaaaaaaa | aaaaaaaaaaaaa | aaa | aaaaaaaaaaaaa | aaaaaaaaaaaaa | aaaaaaaaaaaaa |
+|              |     |               |               |               |     |               |               |               |
 | ------------ | --- | ------------- | ------------- | ------------- | --- | ------------- | ------------- | ------------- |
 | GUESS NUMBER | $4$ | $4 + 10 = 14$ | $4 + 20 = 24$ | $4 + 30 = 34$ | $7$ | $7 + 10 = 17$ | $7 + 20 = 27$ | $7 + 30 = 37$ |
 | REMAINDER | $4 / 4 = 1 R 0$ | $14 / 4 = 3 R 2$ | $24 / 4 = 6 R 0$ | $34 / 4 = 8 R 2$ | $7 / 4 = 1 R 3$ | $17 / 4 = 4 R 1$ | $27 / 4 = 6 R 3$ | $37 / 4 = 9 R 1$ |
