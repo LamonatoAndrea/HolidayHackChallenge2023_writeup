@@ -5,7 +5,7 @@ Help Garland Candlesticks on the Island of Misfit Toys get back into his luggage
 
 ### Hints
 #### Lock Talk
-*From: Garland Candlesticks*
+*From: Garland Candlesticks*  
 Check out Chris Elgee's [talk](https://youtu.be/ycM1hBSEyog) regarding his and his wife's luggage. Sounds weird but interesting!
 
 ### The “right” solution

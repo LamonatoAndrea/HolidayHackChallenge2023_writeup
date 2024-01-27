@@ -5,7 +5,7 @@ Help Sparkle Redberry with some Azure command line skills. Find the elf and the 
 
 ### Hints
 #### Azure CLI Reference
-*From: Sparkle Redberry*
+*From: Sparkle Redberry*  
 The Azure CLI tools come with a builtin help system, but Microsoft also provides this [handy cheatsheet](https://learn.microsoft.com/en-us/cli/azure/reference-index?view=azure-cli-latest).
 
 ### Solution

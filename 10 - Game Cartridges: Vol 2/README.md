@@ -5,11 +5,14 @@ Find the second Gamegosling cartridge and beat the game
 
 ### Hints
 #### Gameboy 2
-*From: Tinsel Upatree*
+*From: Tinsel Upatree*  
 Try poking around Pixel Island. There really aren't many places you can go here, so try stepping everywhere and see what you get!
 #### Gameboy 2
-*From: Tinsel Upatree (after obtaining the cartridge)*
-1) This feels the same, but different! 2) If it feels like you are going crazy, you probably are! Or maybe, just maybe, you've not yet figured out where the hidden ROM is hiding. 3) I think I may need to get a DIFFerent perspective. 4) I wonder if someone can give me a few pointers to swap.
+*From: Tinsel Upatree (after obtaining the cartridge)*  
+1) This feels the same, but different! 
+2) If it feels like you are going crazy, you probably are! Or maybe, just maybe, you've not yet figured out where the hidden ROM is hiding. 
+3) I think I may need to get a DIFFerent perspective. 
+4) I wonder if someone can give me a few pointers to swap.
 
 ### Solution
 Fairly easy to obtain, just go left in Driftbit Grotto until you get it. Crazy to complete. Even though not directly listed as a hint, Tinsel Upatree says that *"Word is: volume 2 has 2 versions!"*. I then noticed the filename being downloaded from `game0.gb`, and just thought it would make sense to try download `game1.gb`, and that way I got both versions. The main visual difference between the two is the worlds are upside-down.

@@ -5,10 +5,10 @@ Visit Christmas Island and talk to Morcel Nougat about this great new game. Team
 
 ### Hints
 #### Snowball Super Hero
-*From: Morcel Nougat*
+*From: Morcel Nougat*  
 Its easiest to grab a friend play with and beat Santa but tinkering with client-side variables can grant you all kinds of snowball fight super powers. You could even take on Santa and the elves solo!
 #### Consoling iFrames
-*From: Morcel Nougat*
+*From: Morcel Nougat*  
 Have an iframe in your document? Be sure to select the right context before meddling with
 JavaScript.
 

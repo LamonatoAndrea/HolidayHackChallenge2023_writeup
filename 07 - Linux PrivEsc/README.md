@@ -5,10 +5,10 @@ Rosemold is in Ostrich Saloon on the Island of Misfit Toys. Give her a hand with
 
 ### Hints
 #### Linux Privilege Escalation Techniques
-*From: Rose Mold*
+*From: Rose Mold*  
 There's [various ways](https://payatu.com/blog/a-guide-to-linux-privilege-escalation/) to escalate privileges on a Linux system.
 #### Linux Command Injection
-*From: Rose Mold*
+*From: Rose Mold*  
 Use the privileged binary to overwriting a file to escalate privileges could be a solution, but there's an easier method if you pass it a crafty argument.
 
 ### Solution
