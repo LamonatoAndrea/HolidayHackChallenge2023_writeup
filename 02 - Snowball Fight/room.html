@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multiplayer Snowball Hero</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%2210 0 100 100%22><text y=%22.90em%22 font-size=%2290%22>❄️</text></svg>">
+  <script src="../conduit.js"></script>
+  <script src="../phaser.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden; /* This line hides the scrollbar */
+    }
+    html {
+      background-color: #181A18;
+    }
+  </style>
+</head>
+<body>
+
+<script>
+  class ToastManager {
+    constructor(scene) {
+      this.scene = scene;
+      this.toasts = [];
+      this.spacing = 10; // space between toasts
+      this.container = this.scene.add.container(0, 0);
+      this.container.setDepth(999999999);
+    }
+
+    showToast(message, duration=500, delay=2000) {
+      // Create a new toast text
+      const toast = this.scene.add.text(0, 0, message, {
+        fontSize: '16px',
+        fontFamily: 'Arial',
+        backgroundColor: '#000',
+        color: '#ffffff',
+        padding: 10
+      });
+      toast.setOrigin(0, 0);
+      toast.setAlpha(0.75)
+      this.container.add(toast);
+
+      let yOffset = 0;
+      this.toasts.forEach(t => {
+          yOffset += t.height + this.spacing;
+      });
+      toast.y = yOffset;
+
+      // Fade in toast
+      this.scene.tweens.add({
+        targets: toast,
+        alpha: { from: 0, to: 1 },
+        duration: duration,
+        onComplete: () => {
+          // Wait for a couple of seconds and then fade out
+          this.scene.time.delayedCall(delay, () => {
+            this.fadeOutToast(toast, duration);
+          });
+        }
+      });
+
+      this.toasts.push(toast);
+    }
+
+    update() {
+      let camera = this.scene.cameras.main;
+
+      // Set the position of the container relative to the camera's top-left corner
+      this.container.x = camera.scrollX + 10; // +10 for a little padding
+      this.container.y = camera.scrollY + 10;
+    }
+
+    fadeOutToast(toast, duration) {
+      this.scene.tweens.add({
+        targets: toast,
+        alpha: { from: 1, to: 0 },
+        duration: duration,
+        onComplete: () => {
+          // Remove toast from array and destroy it
+          const index = this.toasts.indexOf(toast);
+          if (index !== -1) {
+              this.toasts.splice(index, 1);
+          }
+          toast.destroy();
+
+          // Re-adjust positions of the remaining toasts
+          let yOffset = this.spacing;
+          this.toasts.forEach(t => {
+              t.y = yOffset;
+              yOffset += t.height + this.spacing;
+          });
+        }
+      });
+    }
+  }
+
+  function generateUUIDv4() {
+    // Generate 16 random values
+    const randomValues = new Uint8Array(16);
+    (typeof window !== 'undefined' ? window.crypto : require('crypto')).getRandomValues(randomValues);
+
+    // Apply UUIDv4-specific bitwise manipulations
+    randomValues[6] = (randomValues[6] & 0x0f) | 0x40;
+    randomValues[8] = (randomValues[8] & 0x3f) | 0x80;
+
+    // Convert to hex and format as UUIDv4
+    return [...randomValues].map((byte, index) => {
+      const hex = byte.toString(16).padStart(2, '0');
+      const dash = [3, 5, 7, 9].includes(index) ? '-' : '';
+      return hex + dash;
+    }).join('');
+  }
+  var singlePlayer = "false"
+  function checkAndUpdateSinglePlayer() {
+    const localStorageValue = localStorage.getItem('singlePlayer');
+    if (localStorageValue === 'true' || localStorageValue === 'false') {
+      singlePlayer = String(localStorageValue === 'true');
+    }
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlValue = urlParams.get('singlePlayer');
+    if (urlValue === 'true' || urlValue === 'false') {
+      singlePlayer = String(urlValue === 'true');
+    }
+  }
+
+  var nms = ['aboard', 'above', 'acres', 'act', 'active', 'actual', 'add', 'adult', 'advice', 'afraid', 'ago', 'ahead', 'air', 'alike', 'all', 'almost', 'along', 'also', 'am', 'amount', 'angle', 'animal', 'ants', 'apple', 'area', 'army', 'arrive', 'art', 'as', 'ask', 'at', 'atomic', 'attack', 'author', 'avoid', 'away', 'back', 'badly', 'bank', 'bare', 'barn', 'basis', 'bat', 'be', 'bear', 'became', 'become', 'bee', 'before', 'being', 'bell', 'below', 'bend', 'bent', 'best', 'better', 'beyond', 'bigger', 'bill', 'birth', 'bit', 'black', 'blind', 'blood', 'blue', 'boat', 'bone', 'border', 'both', 'bottom', 'bow', 'box', 'brain', 'brass', 'bread', 'breeze', 'bridge', 'bright', 'broad', 'broken', 'brush', 'build', 'built', 'burn', 'bus', 'but', 'buy', 'cabin', 'cake', 'calm', 'camera', 'can', 'cannot', 'carbon', 'care', 'carry', 'cast', 'cat', 'cattle', 'cause', 'cell', 'center', 'chair', 'chance', 'charge', 'check', 'child', 'choice', 'chose', 'church', 'circus', 'city', 'clay', 'clear', 'clock', 'cloth', 'club', 'coal', 'coat', 'cold', 'color', 'come', 'coming', 'common', 'cook', 'cool', 'copy', 'corner', 'cotton', 'count', 'couple', 'course', 'cover', 'cowboy', 'cream', 'crop', 'crowd', 'cup', 'damage', 'danger', 'dark', 'date', 'dawn', 'dead', 'dear', 'decide', 'deep', 'deer', 'degree', 'depth', 'desert', 'desk', 'die', 'dig', 'direct', 'dirty', 'divide', 'do', 'does', 'doing', 'dollar', 'donkey', 'dot', 'doubt', 'dozen', 'drawn', 'dress', 'dried', 'drive', 'driver', 'drop', 'drove', 'duck', 'dug', 'during', 'duty', 'eager', 'earn', 'easier', 'east', 'eat', 'edge', 'effect', 'egg', 'either', 'else', 'end', 'energy', 'enough', 'entire', 'every', 'exact', 'exist', 'eye', 'facing', 'factor', 'failed', 'fairly', 'fallen', 'family', 'far', 'farmer', 'fast', 'faster', 'father', 'fear', 'feed', 'feet', 'fellow', 'fence', 'fewer', 'fierce', 'fifth', 'fight', 'figure', 'film', 'fine', 'finger', 'fire', 'firm', 'fish', 'fix', 'flame', 'flew', 'flight', 'floor', 'flower', 'fog', 'follow', 'foot', 'for', 'forget', 'former', 'forth', 'found', 'fourth', 'frame', 'fresh', 'frog', 'front', 'fruit', 'full', 'fun', 'funny', 'future', 'game', 'garden', 'gather', 'gentle', 'get', 'giant', 'girl', 'given', 'glad', 'globe', 'goes', 'golden', 'good', 'got', 'graph', 'great', 'green', 'ground', 'grow', 'growth', 'guess', 'gulf', 'habit', 'hair', 'hand', 'happen', 'harbor', 'harder', 'has', 'have', 'hay', 'headed', 'health', 'heat', 'height', 'hello', 'herd', 'hide', 'higher', 'him', 'his', 'hit', 'hole', 'home', 'hope', 'horse', 'hot', 'house', 'human', 'hung', 'hunt', 'hurt', 'ice', 'ill', 'in', 'income', 'indeed', 'inside', 'is', 'it', 'itself', 'jar', 'job', 'joined', 'joy', 'jump', 'just', 'kept', 'kids', 'kind', 'knew', 'know', 'known', 'labor', 'lady', 'lake', 'land', 'large', 'late', 'laugh', 'lay', 'lead', 'leaf', 'least', 'leave', 'led', 'leg', 'lesson', 'letter', 'life', 'light', 'likely', 'line', 'lips', 'list', 'little', 'living', 'local', 'lonely', 'longer', 'loose', 'loss', 'lot', 'love', 'low', 'luck', 'lunch', 'lying', 'made', 'magnet', 'main', 'major', 'making', 'map', 'market', 'mass', 'master', 'may', 'me', 'mean', 'meant', 'meat', 'meet', 'member', 'men', 'merely', 'metal', 'mice', 'might', 'mile', 'milk', 'mind', 'mirror', 'mix', 'model', 'money', 'month', 'moon', 'mostly', 'motion', 'mouth', 'moving', 'muscle', 'my', 'name', 'nature', 'nearby', 'needed', 'needs', 'never', 'news', 'next', 'night', 'no', 'nodded', 'none', 'nor', 'nose', 'note', 'noun', 'number', 'nuts', 'ocean', 'off', 'office', 'old', 'oldest', 'once', 'only', 'open', 'orange', 'order', 'origin', 'other', 'our', 'out', 'over', 'owner', 'pack', 'page', 'pain', 'pair', 'pale', 'paper', 'park', 'parts', 'pass', 'past', 'peace', 'pencil', 'per', 'person', 'pet', 'pick', 'piece', 'pile', 'pine', 'pipe', 'place', 'plan', 'planet', 'plates', 'plural', 'pocket', 'poet', 'point', 'police', 'pony', 'poor', 'port', 'pot', 'pound', 'powder', 'press', 'pretty', 'pride', 'prize', 'proper', 'proud', 'pull', 'pure', 'put', 'rabbit', 'radio', 'rain', 'ran', 'range', 'rate', 'raw', 'reach', 'reader', 'real', 'rear', 'recall', 'recent', 'red', 'remain', 'repeat', 'rest', 'return', 'rhyme', 'rice', 'ride', 'right', 'rise', 'river', 'roar', 'rocket', 'rod', 'roof', 'root', 'rose', 'round', 'row', 'rubber', 'ruler', 'sad', 'safe', 'said', 'sale', 'salt', 'sand', 'sat', 'saved', 'say', 'scared', 'school', 'score', 'sea', 'season', 'second', 'seed', 'seems', 'seldom', 'send', 'sent', 'shadow', 'share', 'she', 'sheet', 'shells', 'shine', 'ship', 'shoe', 'shop', 'short', 'shot', 'show', 'shut', 'sides', 'sign', 'silk', 'silver', 'simple', 'simply', 'sing', 'sink', 'sit', 'size', 'skin', 'slabs', 'sleep', 'slide', 'slow', 'small', 'smile', 'smooth', 'snow', 'soap', 'softly', 'solar', 'some', 'song', 'sort', 'source', 'speak', 'speech', 'spell', 'spent', 'spin', 'spite', 'spoken', 'spread', 'square', 'stairs', 'stared', 'state', 'steady', 'steel', 'stems', 'stiff', 'stock', 'stone', 'stop', 'store', 'story', 'stream', 'strike', 'strip', 'stuck', 'such', 'sum', 'sun', 'supper', 'sure', 'swam', 'swept', 'swung', 'symbol', 'table', 'take', 'tales', 'tall', 'tape', 'taste', 'tax', 'teach', 'team', 'teeth', 'tent', 'than', 'that', 'them', 'then', 'there', 'these', 'thick', 'thing', 'third', 'this', 'thou', 'thread', 'threw', 'throw', 'thumb', 'thy', 'tie', 'time', 'tiny', 'tired', 'to', 'today', 'told', 'tone', 'took', 'top', 'torn', 'touch', 'tower', 'toy', 'track', 'train', 'trap', 'trick', 'trip', 'truck', 'truth', 'tube', 'turn', 'twenty', 'two', 'under', 'union', 'unless', 'upon', 'upward', 'use', 'using', 'vapor', 'view', 'visit', 'voice', 'vote', 'voyage', 'wait', 'wall', 'war', 'warn', 'wash', 'watch', 'wave', 'we', 'wealth', 'weigh', 'went', 'west', 'wet', 'what', 'wheat', 'when', 'where', 'while', 'who', 'whom', 'why', 'widely', 'wild', 'wind', 'wing', 'wire', 'wish', 'within', 'wolf', 'won', 'wooden', 'word', 'work', 'world', 'worry', 'worth', 'writer', 'wrote', 'year', 'yes', 'yet', 'young', 'your', 'youth', 'zoo']
+  var username = ""
+  var playerId = ""
+  var roomId = ""; // can be any string
+  var roomType = ""; // private
+  var gameType = ''; // co-op
+  var playerDNA = '';
+  var roomCodeTextObj
+  checkAndUpdateSinglePlayer();
+
+  var url = new URL(window.location.href);
+
+  function setURLParameterIfAbsent(paramName, defaultValue) {
+    var paramValue = url.searchParams.get(paramName);
+    if (!paramValue || !paramValue.length) {
+        url.searchParams.set(paramName, defaultValue);
+        return defaultValue;
+    }
+    return paramValue;
+  }
+
+  var paramsDefaults = {
+    "username": nms[ Math.floor(Math.random() * nms.length) ] + (Math.random() + 1).toString(36).substring(10),
+    "roomId": "0",
+    "roomType": "public",
+    "gameType": 'free-for-all',
+    "id": generateUUIDv4(),
+    "dna": 'avatar' + (Math.floor(Math.random() * 9) + 1),
+    "singlePlayer":"false"
+  };
+
+  var updateURL = false;
+
+  for (let param in paramsDefaults) {
+    let currentParamValue = url.searchParams.get(param);
+    let newValue = setURLParameterIfAbsent(param, paramsDefaults[param]);
+
+    if (currentParamValue !== newValue) {
+      updateURL = true;
+    }
+
+    switch (param) {
+      case 'username': username = newValue; break;
+      case 'roomId': roomId = newValue; break;
+      case 'roomType': roomType = newValue; break;
+      case 'gameType': gameType = newValue; break;
+      case 'id': playerId = newValue; break;
+      case 'dna': playerDNA = newValue; break;
+      case 'singlePlayer': singlePlayer = newValue; break;
+    }
+  }
+  if (!["public","private"].includes(roomType)) {
+    roomType = paramsDefaults['roomType']
+    setURLParameterIfAbsent('roomType', roomType)
+  }
+  if (!["free-for-all","co-op"].includes(gameType)) {
+    gameType = paramsDefaults['gameType']
+    setURLParameterIfAbsent('gameType', gameType)
+  }
+
+  if (updateURL) {
+    history.replaceState(null, null, url.toString());
+  }
+
+  // Setup WebSocket connection.
+  const params = window.location.href.split("/");
+  var ws_type = "ws://"
+  if (window.location.protocol !== 'http:') {
+    ws_type = "wss://"
+  }
+  var textStyle = {
+    fontSize: '18px',
+    fontFamily: 'Arial',
+    color: '#ffffff',
+    stroke: '#000000',
+    strokeThickness: 3
+  };
+
+  var config = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    backgroundColor: '#ccefff',
+    physics: {
+      default: 'arcade',
+      arcade: {
+        gravity: { y: 0 },
+      }
+    },
+    scale: {
+      mode: Phaser.Scale.FIT,
+      autoCenter: Phaser.Scale.CENTER_BOTH,
+    },
+    scene: {
+      preload: preload,
+      create: create,
+      update: update
+    }
+  };
+
+  var playerRespawnTime = 5000
+  var toastManager;
+  var bgmusic;
+  var ReadyButton;
+  var ReadyButtonText;
+  var lastUpdateTime = 0;
+  var gameSceneObject
+  var isFacingLeft = true
+  var player;
+  var scrollintro
+  var scrollend
+  var cursors;
+  var otherPlayers = {};
+  var allElves = {};
+  var elfThrowDelay = 2000
+  var SampleAvatars = [];
+  var stopTheGame = false
+  var winGameText
+  const STALE_LIMIT = 1000;
+  const worldSize = 50;
+  const centerX = worldSize * 16; // half of 32, which is the width of a tile
+  const centerY = worldSize * 16; // half of 32, which is the height of a tile
+  var worldHeight = worldSize * 32
+  var spriteSize = {width:100, height:200}
+  var jaredSprite
+  var starting_pos = randomPositionWithPadding(spriteSize.width, spriteSize.height, worldHeight, 20);
+  var map
+  var tileset
+  var layer
+  var lastSent = 0;
+  const sendRate = 100; // in milliseconds
+  var lastUpdate = 0;
+  var projectiles
+  var assigned_id = ''
+  var snowballLiveTime = 2500
+  var snowballDmg = 2
+  var snowballSpeed = 500
+  var playersHitBoxSize = [30,30,40,60]
+  var elfHitBoxSize = [32,32,48,48]
+  var santaHitBoxSize = [60,60,70,70]
+  var player_healthbar_offset = {x:0,y:-90}
+  var myPlayerTint = 0xb3b3ff
+  var otherPlayerTint = 0xff9980
+  var santaObject
+  var santaThrowDelay = 500
+  var playersVelocity = 200
+  var gameOverText
+  var talkingjared
+  var isaudio = true
+  var audiotoggle
+  var talkingjaredSound
+  var crosshairs
+  var hand_offsets = {
+    lx:30,
+    ly:40,
+    rx:60,
+    ry:10,
+  }
+  var ws;
+  function preload() {
+    this.load.audio('talkingjared', '../hhc23_snowball_elf_much_glory.mp3');
+    this.load.audio('backgroundmusic', '../elf_royale.mp3');
+    this.load.audio('elf_the_dwarf_is_here', '../elf_the_dwarf_is_here.mp3');
+    this.load.audio('woosh', '../woosh.mp3');
+    this.load.audio('splat', '../splat.mp3');
+    this.load.image('hand', '../images/hand.png')
+    this.load.image('scrollintro', '../images/scrollintro.png')
+    this.load.image('scroll', '../images/scroll.png')
+    this.load.image('particle', '../images/particle.png')
+    this.load.image('snowball', '../images/snowball.png')
+    this.load.image('crosshairs', '../images/crosshairs.png')
+    this.load.spritesheet('hand_sh', '../images/hand_sh.png', { 
+      frameWidth: 288, 
+      frameHeight: 288
+    });
+    this.load.spritesheet('audiotoggle', '../images/audiotoggle.png', { 
+      frameWidth: 80, 
+      frameHeight: 80
+    });
+    this.load.image('santa', '../images/santa_body.png')
+    this.load.image('santa_arm', '../images/santa_arm.png')
+    this.load.spritesheet('elf', '../images/elf/elfmin.png', { 
+      frameWidth: 32, 
+      frameHeight: 48
+    });
+    if (singlePlayer === 'true') {
+      this.load.spritesheet('jaredSprite', '../images/JaredSpriteSheetScaled.png', { 
+        frameWidth: 144,
+        frameHeight: 144
+      });
+    }
+    this.load.spritesheet('elfi', '../images/elf/elf.png', { 
+      frameWidth: 32, 
+      frameHeight: 48
+    });
+    this.load.spritesheet('elfFaint', '../images/elf/elfFaint.png', { 
+      frameWidth: 32, 
+      frameHeight: 48
+    });
+    this.load.spritesheet('healthbar', '../images/healthbar/healthbars.png', { 
+      frameWidth: 60, 
+      frameHeight: 12
+    });
+    this.load.spritesheet('talkingjared', '../images/jared_talking_sprite_sheet.png', { 
+      frameWidth: 216, 
+      frameHeight: 216
+    });
+    this.load.image('tiles', '../images/tiles.png');
+    for (let i = 1; i < 10; i++) {
+      SampleAvatars.push('../images/SampleAvatars/avatar'+i+'.png')
+    }
+    for (let i = 0; i < SampleAvatars.length; i++) {
+      this.load.image('avatar'+(i+1), SampleAvatars[i])
+    }
+  }
+
+  function create() {
+    this.game.canvas.style.cursor = 'none';
+    toastManager = new ToastManager(this);
+    gameSceneObject = this
+    crosshairs = this.add.sprite(centerX, centerY, 'crosshairs');
+    crosshairs.setDepth(9999990)
+    crosshairs.setScale(0.5)
+    /*
+    this.input.on('pointermove', function (pointer) {
+      let worldPoint = gameSceneObject.cameras.main.getWorldPoint(pointer.x, pointer.y);
+      crosshairs.x = worldPoint.x
+      crosshairs.y = worldPoint.y
+    }, this);
+    */
+    audiotoggle = this.add.sprite(0, 0, 'audiotoggle');
+    audiotoggle.setOrigin(1,0)
+    audiotoggle.setScale(0.4)
+    audiotoggle.setInteractive()
+    bgmusic = this.sound.add('backgroundmusic')
+    bgmusic.setRate(0.9)
+    bgmusic.loop = true;
+    bgmusic.setVolume(0.05)
+
+    // Check localStorage for stored audio state
+    var audioState = localStorage.getItem('audioState');
+    isaudio = audioState !== 'paused';  // Default to playing if no state is stored
+
+    if (isaudio) {
+      bgmusic.play();
+      audiotoggle.setFrame(0);
+    } else {
+      audiotoggle.setFrame(1);
+    }
+
+    audiotoggle.on('pointerdown', function() {
+      if (isaudio) {
+        bgmusic.pause()
+        isaudio = false
+        localStorage.setItem('audioState', 'paused');  // Update localStorage
+        if (talkingjaredSound) {
+          talkingjaredSound.setVolume(0.001)
+        }
+        audiotoggle.setFrame(1)
+      } else {
+        bgmusic.play()
+        isaudio = true
+        localStorage.setItem('audioState', 'playing');  // Update localStorage
+        if (talkingjaredSound) {
+          talkingjaredSound.setVolume(0.5) 
+        }
+        audiotoggle.setFrame(0)
+      }
+    })
+    audiotoggle.setDepth(999999)
+    if (gameType === "co-op") {
+      // load opening and end scrolls
+      scrollintro = this.add.image(centerX, centerY, 'scrollintro')
+      scrollintro.setOrigin(0.5, 0.5)
+      scrollintro.setDepth(999996)
+      scrollintro.setScale(0.85)
+      scrollend = this.add.image(centerX, centerY, 'scroll')
+      scrollend.setOrigin(0.5, 0.5)
+      scrollend.setVisible(false)
+      scrollend.setDepth(999996)
+      scrollend.setScale(0.85)
+      talkingjared = this.add.sprite(centerX, centerY, 'talkingjared');
+      this.anims.create({
+        key: 'talkingjared',
+        frames: this.anims.generateFrameNumbers('talkingjared', { start: 0, end: 74 }),
+        frameRate: 12,
+        repeat: -1,
+        yoyo:true,
+      });
+      talkingjared.setOrigin(0.5, 0.5)
+      talkingjared.setVisible(false)
+      talkingjared.setDepth(9999999)
+      talkingjared.setScale(2)
+      talkingjaredSound = this.sound.add('talkingjared');
+      talkingjaredSound.setVolume(0.5)
+      talkingjaredSound.on('complete', function() {
+        talkingjared.anims.pause()
+      }, this);
+      gameOverText = this.add.text(
+          this.cameras.main.centerX, 
+          this.cameras.main.centerY, 
+          'Defeated by Santa and the elves.', 
+          { fontFamily: "Arial", fontSize: '32px', fill: '#000' }
+      );
+      gameOverText.setOrigin(0.5);
+      gameOverText.setVisible(false);
+      gameOverText.setDepth(999997)
+      // =========== Ready Button Start
+      let buttonGraphics = this.add.graphics();
+      buttonGraphics.fillStyle(0xF5624D, 1);  // Fill color: red
+      buttonGraphics.fillRoundedRect(200, 200, 150, 50, 15);  // Position, dimensions, and corner radius
+      buttonGraphics.lineStyle(4, 0xffffff, 1);  // Border color: white, line thickness: 4
+      buttonGraphics.strokeRoundedRect(200, 200, 150, 50, 15);  // Stroke the border
+      buttonGraphics.setDepth(999997)
+
+      // Create a text object for the button label
+      ReadyButtonText = this.add.text(230, 208, 'Ready', { fontFamily: "Arial", fontSize: '30px', fill: '#ffffff' });  // Position, text, and style
+      ReadyButtonText.setDepth(999998)
+
+      // Group the graphics and text objects to handle them as a single button
+      ReadyButton = this.add.container(0, 0, [buttonGraphics, ReadyButtonText]);
+
+      // Set the interactive area to the bounds of the graphics object
+      ReadyButton.setInteractive(new Phaser.Geom.Rectangle(200, 200, 150, 50), Phaser.Geom.Rectangle.Contains);
+
+      // Add pointer events to change the button appearance and handle clicks
+      ReadyButton.on('pointerover', function() {
+        buttonGraphics.clear();
+        buttonGraphics.fillStyle(0x34A65F, 1);  // Change fill color to green on hover
+        buttonGraphics.fillRoundedRect(200, 200, 150, 50, 15);
+        buttonGraphics.strokeRoundedRect(200, 200, 150, 50, 15);
+      });
+
+      ReadyButton.on('pointerout', function() {
+        buttonGraphics.clear();
+        buttonGraphics.fillStyle(0xF5624D, 1);  // Change fill color back to red
+        buttonGraphics.fillRoundedRect(200, 200, 150, 50, 15);
+        buttonGraphics.strokeRoundedRect(200, 200, 150, 50, 15);
+      });
+
+      ReadyButton.on('pointerdown', function() {
+        ReadyButton.destroy();
+        scrollintro.destroy()
+        player.update = true
+        player.ready = 1
+        // jared ... I mean Elf the dwarf joins the fight when in single player mode
+        if (singlePlayer === 'true') {
+          setTimeout(() => {
+            if (isaudio) {
+              gameSceneObject.sound.play('elf_the_dwarf_is_here', { volume: 0.5 });
+            }
+            toastManager.showToast("Elf the dwarf has joined your team!", duration=500, delay=5000);
+            jaredSprite = gameSceneObject.physics.add.sprite(starting_pos.x + 150, starting_pos.y, 'jaredSprite');
+            //jaredSprite.setScale(1.2)
+            jaredSprite.setScale(0)
+            jaredSprite.setAlpha(0)
+            gameSceneObject.tweens.add({
+              targets: jaredSprite,
+              angle: 1080, 
+              scale: 1.2,
+              alpha: 1,
+              duration: 1000, 
+              ease: 'Linear',
+              onComplete: function() {
+
+              }
+            });
+            jaredSprite.lastThrowTime = 0
+            jaredSprite.throwDelay = 2000
+            jaredSprite.setDepth(starting_pos.y)
+            gameSceneObject.anims.create({
+              key: 'jared_idle',
+              frames: gameSceneObject.anims.generateFrameNumbers('jaredSprite', { start: 0, end: 5 }),
+              frameRate: 4,
+              repeat: -1
+            });
+            gameSceneObject.anims.create({
+              key: 'jared_throw',
+              frames: gameSceneObject.anims.generateFrameNumbers('jaredSprite', { start: 16, end: 23 }),
+              frameRate: 16,
+              repeat: 0
+            });
+            gameSceneObject.anims.create({
+              key: 'jared_walk',
+              frames: gameSceneObject.anims.generateFrameNumbers('jaredSprite', { start: 8, end: 15 }),
+              frameRate: 12,
+              repeat: -1
+            });
+            jaredSprite.on('animationstart', function(animation, frame) {
+              if(animation.key === 'jared_throw') {
+                let closestObj = findClosestEnemyObject(jaredSprite, allElves, santaObject);
+                if (closestObj) {
+                  let arcStartAngle = Phaser.Math.Angle.Between(jaredSprite.x, jaredSprite.y, closestObj.x, closestObj.y) - Phaser.Math.DegToRad(20);
+                  let arcEndAngle = arcStartAngle + Phaser.Math.DegToRad(40);
+                  let increment = Phaser.Math.DegToRad(5);  // Increment angle by 2 degrees each step
+                  // Loop through the arc and log each angle
+                  for (let currentAngle = arcStartAngle; currentAngle <= arcEndAngle; currentAngle += increment) {
+                    let snowball = projectiles.create(jaredSprite.x, jaredSprite.y, 'snowball');
+                    snowball.setRotationDirection( isLeft(currentAngle) );
+                    snowball.setOwner(jaredSprite);
+                    snowball.speed = snowball.speed * 1.3
+                    snowball.fire(currentAngle);
+                  }
+                }
+              }
+            }, this);
+            jaredSprite.lastX = jaredSprite.x
+            jaredSprite.lastY = jaredSprite.y
+            jaredSprite.entity_type = 'dwarf'
+            jaredSprite.anims.play('jared_idle')
+            gameSceneObject.physics.add.overlap(projectiles, jaredSprite, snowballHitsEntity, customOverlapCondition, gameSceneObject);
+          }, 1000)
+        }
+
+      });
+      ReadyButton.setDepth(999999)
+      if (singlePlayer === "false") {
+        toastManager.showToast("Game begins when two players join and are ready.", duration=500, delay=playerRespawnTime);
+      }
+    }
+    if (roomType === "private") {
+      roomCodeTextObj = this.add.text(0, 0, 'Room Code: ' + roomId, { fontWeight:'bold', fontFamily: "Arial", fontSize: '18px', fill: '#000000' });
+      roomCodeTextObj.setDepth(999999)
+      roomCodeTextObj.setOrigin(1,1)
+    }
+
+    // =========== Ready Button End
+
+    // Generate a simple map layout based on random values
+    const level = Array.from({ length: worldSize }, () => {
+      return Array.from({ length: worldSize }, () => {
+        if (Math.random() < 0.95) {
+          return 0;
+        }
+        return Math.floor(Math.random() * 2) + 1;
+      });
+    });
+    map = this.make.tilemap({ data: level, tileWidth: 32, tileHeight: 32 });
+    tileset = map.addTilesetImage('tiles');
+    layer = map.createLayer(0, tileset, 0, 0); // Ensure the offset is set to (0,0)
+
+    // ========== player stuff
+    player = createPlayerObject(playerDNA, starting_pos.x, starting_pos.y)
+    player.username = username
+    player.throwDelay = 300
+    player.moveVelocity = playersVelocity
+    player.throwTime = 0
+    player.isregistered = false
+    player.lastX = player.x
+    player.lastY = player.y
+    player.playerId = playerId
+    player.assigned_id = false
+    player.health = 50
+    player.lastHealth = player.health + 0
+    player.update = true
+    if (gameType === "free-for-all") {
+      player.ready = 1
+    } else {
+      player.ready = 0
+    }
+    player.isdefeated = 0
+    player.healthbar = this.add.image(player.x + player_healthbar_offset.x, player.y + player_healthbar_offset.y, 'healthbar')
+    player.healthbar.setFrame(0);
+    player.healthbar.setScale(1.5)
+    player.usernameText = gameSceneObject.add.text(player.x, player.healthbar.y + 6, username, textStyle);
+    player.usernameText.setOrigin(0.5, 0); 
+    player.takehit = (dmg, owner_playerobj) => {
+      if (!player.isdefeated) {
+        player.health = Math.min( Math.max(Math.abs( player.health - dmg ), 0), 50)
+        if (player.health !== player.lastHealth) {
+          player.update = true
+          player.lastHealth = player.health + 0
+          player.healthbar.setFrame( Math.min(50 - player.health, 49) );
+          player.healthbar.setFrame( Math.min( Math.max(Math.abs( 50 - player.health ), 0), 49) )
+          if (player.health == 0) {
+            player.isdefeated = 1
+            if (gameType === 'free-for-all') {
+              setTimeout(function() {
+                ws.close()
+                window.location.reload();
+              }, playerRespawnTime)
+            } else {
+              stopTheGame = true
+              ws.close()
+            }
+          }
+          if (player.isdefeated) {
+            playerDeath(player)
+            setTimeout(function() {
+              if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ a: 'd-' + assigned_id + '-' + owner_playerobj.assigned_id, i: playerId})); 
+              }
+            }, sendRate+50)
+          }
+        }
+      }
+    }
+    player.entity_type = 'player'
+    player.walkingTween = this.tweens.add({
+      targets: player,
+      rotation: 0.1,  // This is in radians. Adjust this value to get the desired effect.
+      ease: 'Sine.inOut',
+      yoyo: true,     // Yoyo effect makes the animation play back and forth.
+      repeat: -1,     // Repeat forever.
+      duration: 150,
+      paused: true   // Start paused so it only plays when we move.
+    });
+    player.setOrigin(0.5,0.5)
+    player.flipX = true
+    cursors = {
+      upW: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+      upArrow: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
+      downS: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+      downArrow: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
+      leftA: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+      leftArrow: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
+      rightD: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+      rightArrow: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
+    };
+    this.anims.create({
+      key: 'throw',
+      frames: this.anims.generateFrameNumbers('hand_sh', { start: 0, end: 13 }),
+      frameRate: 50,
+      repeat: 0,
+      hideOnComplete: false
+    });
+    setupPlayerHands.bind(this)(player, isme=true);
+    this.input.on('pointerdown', function (pointer) {
+      let nowt = Date.now()
+      if (Date.now() - player.throwTime > player.throwDelay && player.ready) {
+        player.throwTime = nowt
+        playerThrow(pointer)
+      }
+    }, this);
+
+    // ========== end of player stuff
+    projectiles = this.physics.add.group({
+      classType: Projectile,
+      maxSize: 200,  // Set the max number of projectiles
+      runChildUpdate: true  // Ensure the projectiles update each frame
+    });
+    
+    this.physics.add.overlap(projectiles, player, snowballHitsEntity, customOverlapCondition, this);
+    this.cameras.main.startFollow(player);
+    this.cameras.main.setBounds(0, 0, worldSize * 32, worldSize * 32);
+
+    // ========== Elf animations
+    this.anims.create({
+      key: 'faint',
+      frames: this.anims.generateFrameNumbers('elfFaint', { start: 10, end: 20 }),
+      frameRate: 8,
+      repeat: 0
+    });
+    this.anims.create({
+      key: 'elfMove',
+      frames: this.anims.generateFrameNumbers('elf', { start: 0, end: 7 }),
+      frameRate: 8,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'elfIdle',
+      frames: this.anims.generateFrameNumbers('elfi', { start: 1, end: 4 }),
+      frameRate: 4,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'elfThrow',
+      frames: this.anims.generateFrameNumbers('elf', { start: 38, end: 42 }),
+      frameRate: 8,
+      repeat: 0
+    });
+    ws.send(JSON.stringify({a: 'c', i: playerId}));
+  }
+  function update(time, delta) {
+    if (crosshairs) {
+      let pointer = gameSceneObject.input.activePointer;
+      let worldPoint = gameSceneObject.cameras.main.getWorldPoint(pointer.x, pointer.y);
+      crosshairs.x = worldPoint.x
+      crosshairs.y = worldPoint.y
+    }
+    if (audiotoggle) {
+      let camera = this.cameras.main;
+      audiotoggle.x = camera.scrollX + camera.width
+      audiotoggle.y = camera.scrollY
+    }
+    if (roomCodeTextObj) {
+      let camera = this.cameras.main;
+      roomCodeTextObj.x = camera.scrollX + camera.width
+      roomCodeTextObj.y = camera.scrollY + camera.height
+    }
+    if (stopTheGame && gameType === "co-op") {
+      scrollend.setVisible(true);
+      gameOverText.setVisible(true);
+      let camera = this.cameras.main;
+      scrollend.setPosition(camera.scrollX + (camera.width/2), camera.scrollY + (camera.height/2))
+      gameOverText.setPosition(camera.scrollX + (camera.width/2), camera.scrollY + (camera.height/2))
+      //this.cameras.main.centerX, 
+      //this.cameras.main.centerY, 
+      return;
+    }
+    // Using WASD and arrow keys for movement
+    if (scrollintro && scrollintro.active) {
+      let camera = this.cameras.main;
+      scrollintro.x = camera.scrollX + (camera.width/2)
+      scrollintro.y = camera.scrollY + (camera.height/2)
+      ReadyButton.x = camera.scrollX + (camera.width/2) - 275
+      ReadyButton.y = camera.scrollY + (camera.height/2) - 5
+    }
+    if (scrollend && scrollend.alpha) {
+      let camera = this.cameras.main;
+      scrollend.x = camera.scrollX + (camera.width/2)
+      scrollend.y = camera.scrollY + (camera.height/2)
+      talkingjared.x = camera.scrollX + (camera.width/2)
+      talkingjared.y = camera.scrollY + (camera.height/2)
+    }
+    if (winGameText) {
+      let camera = this.cameras.main;
+      scrollend.x = camera.scrollX + (camera.width/2)
+      scrollend.y = camera.scrollY + (camera.height/2)
+      winGameText.x = camera.scrollX + (camera.width/2) - 60
+      winGameText.y = camera.scrollY + (camera.height/2) - 230
+    }
+
+    if (!player.isdefeated) {
+      if (cursors.leftA.isDown || cursors.leftArrow.isDown) {
+        player.setVelocityX(-player.moveVelocity);
+        player.walkingTween.resume();
+        isFacingLeft = true
+      } else if (cursors.rightD.isDown || cursors.rightArrow.isDown) {
+        player.setVelocityX(player.moveVelocity);
+        player.walkingTween.resume();
+        isFacingLeft = false
+      } else {
+        player.setVelocityX(0);
+      }
+
+      if (cursors.upW.isDown || cursors.upArrow.isDown) {
+        player.setVelocityY(-player.moveVelocity);
+        player.walkingTween.resume();
+      } else if (cursors.downS.isDown || cursors.downArrow.isDown) {
+        player.setVelocityY(player.moveVelocity);
+        player.walkingTween.resume();
+      } else {
+        player.setVelocityY(0);
+      }
+
+      var lhand_offset = player.lhand.tweenYOffset % 10
+      if (!player.lhand.tweenRev) {
+        lhand_offset = 10 - lhand_offset
+      }
+      var rhand_offset = player.rhand.tweenYOffset % 10
+      if (!player.rhand.tweenRev) {
+        rhand_offset = 10 - rhand_offset
+      }
+      var snowballxoffset = 15
+      player.lhand.y = player.y + hand_offsets.ly + lhand_offset
+      player.rhand.y = player.y + hand_offsets.ry + rhand_offset
+      if (isFacingLeft) {
+        player.flipX = true;
+
+        player.lhand.x = player.x + hand_offsets.lx
+        player.rhand.x = player.x - hand_offsets.rx
+        player.lhand.flipX = false;
+        player.rhand.flipX = true;
+      } else {
+        player.flipX = false;
+
+        player.lhand.x = player.x - hand_offsets.lx
+        player.rhand.x = player.x + hand_offsets.rx
+        player.lhand.flipX = true;
+        player.rhand.flipX = false;
+        snowballxoffset = snowballxoffset * -1
+      }
+      player.snowball.x = player.rhand.x + snowballxoffset
+      player.snowball.y = player.rhand.y - 35
+
+      // Check if the player is stationary. If yes, stop the walking tween.
+      if (player.body.velocity.x === 0 && player.body.velocity.y === 0) {
+        player.walkingTween.pause();
+      }
+
+      // Ensure player stays in bounds
+      const halfWidth = player.width * 0.5;
+      const halfHeight = player.height * 0.5;
+
+      if (player.x - halfWidth < 0) player.x = halfWidth;
+      if (player.y - (halfHeight/1.5) < 0) player.y = (halfHeight/1.5);
+      if (player.x + halfWidth > worldSize * 32) player.x = (worldSize * 32) - halfWidth;
+      if (player.y + halfHeight > worldSize * 32) player.y = (worldSize * 32) - halfHeight;
+    }
+
+    for (const eid in allElves) {
+      const elfobj = allElves[eid];
+      if (elfobj.isdefeated) {
+        continue
+      }
+      let elapsedTime = (time - lastUpdateTime) / 1000;
+      if (elapsedTime > 0.5) {
+        elfobj.lastThrowtime = Date.now() + Math.floor(Math.random() * 1001) + elfThrowDelay
+      }
+      elfobj.interpolateProgress += (time - lastUpdate) / sendRate;
+      if (elfobj.interpolateProgress > 1) elfobj.interpolateProgress = 1;
+      elfobj.x = lerp(elfobj.x, elfobj.targetX, 0.1);
+      elfobj.y = lerp(elfobj.y, elfobj.targetY, 0.1);
+      elfobj.setDepth(elfobj.y - 48)
+      if (elfobj.lastThrowtime + elfThrowDelay < Date.now()) {
+        elfobj.lastThrowtime = Date.now()
+        elfobj.anims.pause();
+        elfobj.play('elfThrow');
+      }
+      if (Math.abs(elfobj.x - elfobj.targetX) > 1 || Math.abs(elfobj.y - elfobj.targetY) > 1) {
+        if (elfobj.anims.isPlaying) {
+          if (elfobj.anims.currentAnim.key === 'elfThrow') {
+
+          } else if (elfobj.anims.currentAnim.key === 'elfIdle') {
+            elfobj.anims.pause();
+            elfobj.play('elfMove');
+          } else if (elfobj.anims.currentAnim.key === 'elfMove') {
+
+          }
+        } else {
+          elfobj.play('elfMove');
+        }
+      } else {
+        if (elfobj.anims.currentAnim.key === 'elfThrow') {
+
+        } else if (elfobj.anims.isPlaying) {
+          if (elfobj.anims.currentAnim.key === 'elfMove') {
+            elfobj.anims.pause();
+            elfobj.play('elfIdle');
+          } else if (elfobj.anims.currentAnim.key === 'elfIdle') {
+
+          }
+        } else {
+          elfobj.play('elfIdle');
+        }
+      }
+    }
+
+    // Interpolation of other players' movement
+    for (const id in otherPlayers) {
+      const otherPlayer = otherPlayers[id];
+      var op_snowballxoffset = 15
+      
+      if (Date.now() - otherPlayer.lastUpdate > STALE_LIMIT) {
+        playerDeath(otherPlayer, now=true)
+      } else if (otherPlayer.targetX !== undefined && otherPlayer.targetY !== undefined && !otherPlayer.isdefeated) {
+        otherPlayer.interpolateProgress += (time - lastUpdate) / sendRate;
+        
+        if (otherPlayer.interpolateProgress > 1) otherPlayer.interpolateProgress = 1;
+        
+        // Update position through interpolation:
+        const oldX = otherPlayer.x; // Remember the old X before updating
+        otherPlayer.lastX = otherPlayer.x+0
+        otherPlayer.lastY = otherPlayer.y+0
+        otherPlayer.x = lerp(otherPlayer.x, otherPlayer.targetX, 0.1);
+        otherPlayer.y = lerp(otherPlayer.y, otherPlayer.targetY, 0.1);
+
+        var lhand_offset = otherPlayer.lhand.tweenYOffset % 10
+        if (!otherPlayer.lhand.tweenRev) {
+          lhand_offset = 10 - lhand_offset
+        }
+        var rhand_offset = otherPlayer.rhand.tweenYOffset % 10
+        if (!otherPlayer.rhand.tweenRev) {
+          rhand_offset = 10 - rhand_offset
+        }
+
+        otherPlayer.lhand.y = otherPlayer.y + hand_offsets.ly + lhand_offset
+        otherPlayer.rhand.y = otherPlayer.y + hand_offsets.ry + rhand_offset
+        // Check direction for sprite flipping:
+        if (oldX > otherPlayer.x) {
+          // Player is moving left
+          otherPlayer.flipX = true;
+
+          otherPlayer.lhand.x = otherPlayer.x + hand_offsets.lx
+          otherPlayer.rhand.x = otherPlayer.x - hand_offsets.rx
+          otherPlayer.lhand.flipX = false;
+          otherPlayer.rhand.flipX = true;
+        } else if (oldX < otherPlayer.x) {
+          // Player is moving right
+          otherPlayer.flipX = false;
+
+          otherPlayer.lhand.x = otherPlayer.x - hand_offsets.lx
+          otherPlayer.rhand.x = otherPlayer.x + hand_offsets.rx
+          otherPlayer.lhand.flipX = true;
+          otherPlayer.rhand.flipX = false;
+        }
+        if (!otherPlayer.flipX) {
+          op_snowballxoffset = op_snowballxoffset * -1
+        }
+
+        // Check if the other player has moved significantly to consider it "walking".
+        if (Math.abs(otherPlayer.x - otherPlayer.targetX) > 1 || Math.abs(otherPlayer.y - otherPlayer.targetY) > 1) {
+          otherPlayer.walkingTween.resume();
+        } else {
+          otherPlayer.walkingTween.pause();
+        }
+        otherPlayer.healthbar.setPosition( otherPlayer.x + player_healthbar_offset.x, otherPlayer.y + player_healthbar_offset.y )
+        otherPlayer.healthbar.setDepth(otherPlayer.y+3);
+        otherPlayer.usernameText.setDepth(otherPlayer.y+2);
+        otherPlayer.usernameText.setPosition(otherPlayer.x, otherPlayer.healthbar.y + 6);
+        // Get the viewport bounds
+        let viewport = this.cameras.main.worldView;
+
+        // Define a padding value
+        let padding = 5;
+        let topPadding = 10;  // Reduced padding for top
+        let bottomPadding = 15;  // Increased padding for bottom
+
+        // Get the half width and height of the text
+        let paddingLeftRight = 10
+        let circleHeight = 5;
+
+        let tmpOtherPlayerY = otherPlayer.y - 0
+
+        // Check if otherPlayer is within the viewport
+        if (viewport.contains(otherPlayer.x, tmpOtherPlayerY)) {
+          // If within viewport, set the text position above otherPlayer's head
+          if (otherPlayer.indicatorCircle) {
+            otherPlayer.indicatorCircle.destroy();
+            otherPlayer.indicatorCircle = null;
+          }
+        } else {
+          // Determine the closest edge and set the text position accordingly
+          let clampedX = Phaser.Math.Clamp(otherPlayer.x, viewport.x + paddingLeftRight + padding, viewport.right - paddingLeftRight - padding);
+          let clampedY = Phaser.Math.Clamp(tmpOtherPlayerY, viewport.y + circleHeight + topPadding, viewport.bottom - bottomPadding);
+
+          if (otherPlayer.x < viewport.x + paddingLeftRight + padding) {
+            clampedX = viewport.x + paddingLeftRight + padding;
+          } else if (otherPlayer.x > viewport.right - paddingLeftRight - padding) {
+            clampedX = viewport.right - paddingLeftRight - padding;
+          }
+          if (tmpOtherPlayerY < viewport.y + circleHeight + topPadding) {
+            clampedY = viewport.y + circleHeight + topPadding;
+          } else if (tmpOtherPlayerY > viewport.bottom - bottomPadding) {
+            clampedY = viewport.bottom - bottomPadding;
+          }
+          if (!otherPlayer.indicatorCircle) {
+            // Create the circle if it doesn't exist
+            otherPlayer.indicatorCircle = this.add.circle(clampedX, clampedY, 5, 0xff0000); 
+            otherPlayer.indicatorCircle.setDepth(9998);
+          } else {
+            // Update the position of the existing circle
+            otherPlayer.indicatorCircle.setPosition(clampedX, clampedY);
+          }
+        }
+      }
+      otherPlayer.snowball.x = otherPlayer.rhand.x + op_snowballxoffset
+      otherPlayer.snowball.y = otherPlayer.rhand.y - 35
+      otherPlayer.setDepth(otherPlayer.y);
+      otherPlayer.lhand.setDepth(otherPlayer.y+1);
+      otherPlayer.rhand.setDepth(otherPlayer.y+1);
+      otherPlayer.snowball.setDepth(otherPlayer.y+2);
+    }
+    if (jaredSprite) {
+      // Distance calculation
+      let distance = Phaser.Math.Distance.Between(jaredSprite.x, jaredSprite.y, player.x, player.y);
+
+      // Determine movement direction
+      let angleToPlayer = Math.atan2(player.y - jaredSprite.y, player.x - jaredSprite.x);
+      
+      let closestObj = findClosestEnemyObject(jaredSprite, allElves, santaObject);
+      let shouldFlip = isLeft(angleToPlayer);
+
+      // Update Jared's movement if outside 200 pixels range from player
+      if (distance > 200) {
+        let moveX = Math.cos(angleToPlayer) * 200;
+        let moveY = Math.sin(angleToPlayer) * 200;
+        jaredSprite.x = player.x - moveX;
+        jaredSprite.y = player.y - moveY;
+      }
+      if (closestObj) {
+        let angleToFace = Math.atan2(closestObj.y - jaredSprite.y, closestObj.x - jaredSprite.x);
+        jaredSprite.flipX = isLeft(angleToFace);
+      } else {
+        // Update flipX based on lastX
+        jaredSprite.flipX = shouldFlip;
+      }
+
+      if (jaredSprite.lastThrowTime + jaredSprite.throwDelay < Date.now() && closestObj && !player.isdefeated) {
+        jaredSprite.lastThrowTime = Date.now()
+        jaredSprite.anims.pause()
+        jaredSprite.anims.play('jared_throw');
+      }
+      // Update animations
+      if (jaredSprite.anims.isPlaying && jaredSprite.anims.currentAnim.key === 'jared_throw') {
+        // If the throw animation is playing, do nothing
+      } else if (jaredSprite.lastX !== jaredSprite.x || jaredSprite.lastY !== jaredSprite.y) {
+        // If Jared is moving, play the walk animation
+        if (!jaredSprite.anims.isPlaying || jaredSprite.anims.currentAnim.key !== 'jared_walk') {
+            jaredSprite.anims.play('jared_walk', true);
+        }
+      } else {
+        // If Jared is idle, play the idle animation
+        if (!jaredSprite.anims.isPlaying || jaredSprite.anims.currentAnim.key !== 'jared_idle') {
+            jaredSprite.anims.play('jared_idle', true);
+        }
+      }
+      jaredSprite.lastX = jaredSprite.x;
+      jaredSprite.lastY = jaredSprite.y;
+      jaredSprite.setDepth(jaredSprite.y - 10)
+    }
+    if (santaObject && !santaObject.isdefeated) {
+      santaObject.interpolateProgress += (time - lastUpdate) / sendRate;
+      if (santaObject.interpolateProgress > 1) santaObject.interpolateProgress = 1;
+      santaObject.x = lerp(santaObject.x, santaObject.targetX, 0.1);
+      santaObject.y = lerp(santaObject.y, santaObject.targetY, 0.1);
+      santaObject.healthbar.setPosition(santaObject.x, santaObject.y - 100)
+      santaObject.setDepth(santaObject.y - 0)
+      santaObject.healthbar.setDepth(santaObject.y + 3)
+
+      var closestPlayer = enemyFindClosestPlayer(santaObject)
+
+      // If a closest player was found, determine the flip based on the angle to that player
+      if (closestPlayer) {
+        let angle = Math.atan2(closestPlayer.y - santaObject.y, closestPlayer.x - santaObject.x);
+        let shouldFlip = isLeft(angle);
+        santaObject.flipX = !shouldFlip;
+        santaObject.arm.flipX = shouldFlip;
+      }
+      if (santaObject.arm.flipX) {
+        santaObject.snowball.setPosition(santaObject.arm.x + 3, santaObject.arm.y - 55)
+        santaObject.arm.x = santaObject.x + (santaObject.angle/2) + 38
+        santaObject.arm.y = santaObject.y + (santaObject.angle/2) - 13
+      } else {
+        santaObject.snowball.setPosition(santaObject.arm.x - 2, santaObject.arm.y - 55)
+        santaObject.arm.x = santaObject.x - (santaObject.angle/2) - 35
+        santaObject.arm.y = santaObject.y - (santaObject.angle/2) - 10
+      } 
+      if (santaObject && santaObject.arm && !santaObject.arm.isThrowing) {
+        santaObject.arm.throw()
+      }
+      santaObject.arm.setDepth(santaObject.y + 1)
+      santaObject.snowball.setDepth(santaObject.y + 2)
+    }
+
+    projectiles.getChildren().forEach(projectile => {
+      projectile.update(time, delta);
+    });
+    if (player.lastX !== player.x || player.lastY !== player.y) {
+      player.update = true
+      player.lastX = player.x + 0
+      player.lastY = player.y + 0
+    }
+    lastUpdate = time;
+    if (ws.readyState === WebSocket.OPEN) {
+      if (((time - lastSent) > sendRate && player.active && player.update) || !player.isregistered) {
+        lastSent = time;
+        player.update = false
+        var msgstring = JSON.stringify({ i: playerId, x: roundToThousandth(player.x), y: roundToThousandth(player.y), h: player.health, r:player.ready, d: player.isdefeated })
+        ws.send(msgstring);
+      }
+    }
+    if (!player.isdefeated) {
+      toastManager.update();
+      player.healthbar.setPosition( player.x + player_healthbar_offset.x, player.y + player_healthbar_offset.y )
+      player.setDepth(player.y);
+      player.lhand.setDepth(player.y+1);
+      player.rhand.setDepth(player.y+1);
+      player.snowball.setDepth(player.y+2);
+      player.healthbar.setDepth(player.y+3);
+      player.usernameText.setPosition(player.x, player.healthbar.y + 6)
+      player.usernameText.setDepth(player.y+2);
+    }
+    lastUpdateTime = time;
+  }
+  function playerThrow(pointer=false) {
+    if (player.isdefeated) {return}
+    if (isaudio) {
+      gameSceneObject.sound.play('woosh', { volume: 0.3 });
+    }
+    if (pointer == false) {
+      pointer = {
+        x: gameSceneObject.input.mousePointer.x,
+        y: gameSceneObject.input.mousePointer.y
+      };
+    }
+    let worldPoint = gameSceneObject.cameras.main.getWorldPoint(pointer.x, pointer.y);
+    const angle = Phaser.Math.Angle.Between(player.snowball.x, player.snowball.y, worldPoint.x, worldPoint.y);
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ 
+        a: 't',
+        i: playerId,
+        g: angle
+      }));
+    }
+  }
+  function lerp(start, end, factor) {
+    return (1 - factor) * start + factor * end;
+  }
+  function roundToThousandth(num) {
+    return Math.round(num * 1000) / 1000;
+  }
+  function setupPlayerHands(player_obj, isme=true) {
+    const randomOffset = Math.floor(Math.random() * 10);  // generate a random value between 0 and 10
+    const randomBool = Math.random() >= 0.5;
+    player_obj.lhand = this.add.image(player_obj.x + hand_offsets.lx, player_obj.y + hand_offsets.ly, 'hand')
+    player_obj.lhand.setOrigin(0.5, 0.5)
+    player_obj.lhand.setScale(0.06)
+    player_obj.lhand.tweenYOffset = randomOffset
+    player_obj.lhand.tweenRev = randomBool
+    player_obj.rhand = this.add.sprite(player_obj.x - hand_offsets.rx,  player_obj.y + hand_offsets.ry, 'hand_sh');
+    player_obj.rhand.setOrigin(0.5, 0.5)
+    player_obj.rhand.setScale(0.4)
+    player_obj.rhand.flipX = true;
+    player_obj.rhand.tweenYOffset = randomOffset
+    player_obj.rhand.tweenRev = randomBool
+
+    player_obj.snowball = this.add.image(player_obj.x - hand_offsets.rx,  player_obj.y + hand_offsets.ry, 'snowball')
+    player_obj.snowball.setOrigin(0.5, 0.5)
+    player_obj.snowball.setScale(0.8)
+    if (gameType === "co-op") {
+      if (isme) {
+        player_obj.snowball.setTint(myPlayerTint);
+      } else {
+        player_obj.snowball.setTint(otherPlayerTint);
+      }
+    }
+    player_obj.rhand.on('animationstart', function() {
+      player_obj.snowball.setVisible(false)
+    }, this);
+    player_obj.rhand.on('animationcomplete', function () {
+      player_obj.rhand.setFrame(0);  // Reset the sprite to the first frame
+      player_obj.snowball.setVisible(true)
+    }, this);
+    player_obj.lhand.interval = setInterval(function(){
+      player_obj.lhand.tweenYOffset += 0.5
+      if (player_obj.lhand.tweenYOffset%10 === 0) {
+        player_obj.lhand.tweenRev = !player_obj.lhand.tweenRev
+      }
+    }, 50)
+    player_obj.rhand.interval = setInterval(function(){
+      player_obj.rhand.tweenYOffset += 0.5
+      if (player_obj.rhand.tweenYOffset%10 === 0) {
+        player_obj.rhand.tweenRev = !player_obj.rhand.tweenRev
+      }
+    }, 50)
+  }
+  class Projectile extends Phaser.Physics.Arcade.Sprite {
+    constructor(scene, x, y) {
+      super(scene, x, y, 'snowball');
+      this.speed = snowballSpeed;  // Adjust this value as per the desired speed
+      this.snowballLiveTime = snowballLiveTime;  // 5 seconds max lifetime
+      this.startTime = scene.time.now;
+      this.isLeft = true
+      this.owner_entityobj = false
+      this.setDepth(worldHeight+1)
+      this.isdying = false
+      this.setOrigin(0.5,0.5)
+      scene.physics.add.existing(this);
+      scene.add.existing(this);
+    }
+    fire(angle) {
+      this.scene.physics.velocityFromRotation(angle, this.speed, this.body.velocity);
+    }
+    setRotationDirection(isLeft) {
+      this.isLeft = isLeft
+      this.flipX = isLeft
+    }
+    setOwner(owner_playerobj) {
+      this.owner_entityobj = owner_playerobj
+    }
+    playAnimThenDestroy() {
+      if (isaudio) {
+        gameSceneObject.sound.play('splat', { volume: 0.15 });
+      }
+      var sb = this
+      var playtime = 200
+      this.setVisible(false)
+      let thistint = 0x80d4ff // default
+      if (this.owner_entityobj === player) {
+        thistint = myPlayerTint
+      } else if (this.owner_entityobj.entity_type === 'otherPlayer' && gameType === 'co-op') {
+        thistint = otherPlayerTint
+      }
+      let particleConfig = {
+        x: this.x,
+        y: this.y,
+        speed: { min: 50, max: 150 },
+        angle: { min: 0, max: 360 },
+        scale: { start: 3, end: 8 },
+        quantity: 50,
+        lifespan: 500,
+        tint: thistint,
+        alpha: { start: 1, end: 0 },
+        gravityY: 100
+      };
+      if (gameType === 'free-for-all') {
+        delete particleConfig['tint']
+      }
+      var emitter = gameSceneObject.add.particles(0, 0, 'particle', particleConfig);
+      emitter.setDepth(worldHeight + 1);
+      emitter.explode(playtime, this.x, this.y);
+
+      var hitTimeout = setTimeout(() => {
+        sb.destroy();
+      }, playtime)
+    }
+    update(currentTime, delta) {
+      if (currentTime - this.startTime > this.snowballLiveTime) {
+        this.destroy()
+      } else {
+        if (this.isLeft) {
+          this.angle -= (0.5 * delta)
+        } else {
+          this.angle += (0.5 * delta)
+        }
+      }
+    }
+  }
+  function createOtherPlayer(data) {
+    let otherPlayer = createPlayerObject(data.DNA || data.dna, data.X || data.x, data.Y || data.y)
+    otherPlayer.flipX = true
+    otherPlayer.username = data.u || data.Username
+    if (gameType == "co-op") {
+      toastManager.showToast(otherPlayer.username+" has joined your team!", duration=500, delay=5000);
+    }
+    otherPlayer.health = Math.min( Math.max(Math.abs( data.Health || data.h ), 0), 50)
+    otherPlayer.healthbar = gameSceneObject.add.image(otherPlayer.x + player_healthbar_offset.x, otherPlayer.y + player_healthbar_offset.y, 'healthbar')
+    otherPlayer.healthbar.setFrame(0);
+    otherPlayer.healthbar.setScale(1.5)
+    otherPlayer.usernameText = gameSceneObject.add.text(otherPlayer.x, otherPlayer.healthbar.y + 6, otherPlayer.username, textStyle);
+    otherPlayer.usernameText.setOrigin(0.5, 0);
+
+    otherPlayer.entity_type = 'otherPlayer'
+    otherPlayer.targetX = data.X || data.x;
+    otherPlayer.targetY = data.Y || data.y;
+    otherPlayer.lastX = data.X || data.x;
+    otherPlayer.lastY = data.Y || data.y;
+    otherPlayer.ready = data.Ready || data.r
+    otherPlayer.isdefeated = data.isdefeated || data.d
+    otherPlayer.interpolateProgress = 0;
+    otherPlayer.assigned_id = (data.PlayerID || data.i) + ""
+    otherPlayer.DNA = data.DNA || data.dna
+    setupPlayerHands.bind(gameSceneObject)(otherPlayer, isme=false);
+    otherPlayers[otherPlayer.assigned_id] = otherPlayer;
+    otherPlayers[otherPlayer.assigned_id].lastUpdate = Date.now();
+    otherPlayers[otherPlayer.assigned_id].health = Math.min( Math.max(Math.abs( data.Health ), 0), 50)  
+    otherPlayers[otherPlayer.assigned_id].healthbar.setFrame( Math.min( Math.max(Math.abs( 50 - otherPlayer.health ), 0), 49) )
+    // Add tween for rocking effect
+    otherPlayers[otherPlayer.assigned_id].walkingTween = gameSceneObject.tweens.add({
+      targets: otherPlayer,
+      rotation: 0.1,  // Adjust this value for the desired effect.
+      ease: 'Sine.inOut',
+      yoyo: true, 
+      repeat: -1,
+      duration: 150,
+      paused: true 
+    });
+    gameSceneObject.physics.add.overlap(projectiles, otherPlayer, snowballHitsEntity, customOverlapCondition, gameSceneObject);
+  }
+  function playerDeath(player_obj, now=false) {
+    if (otherPlayers.hasOwnProperty(player_obj.assigned_id) && now) {
+      delete otherPlayers[player_obj.assigned_id];
+    }
+    clearInterval(player_obj.lhand.interval)
+    clearInterval(player_obj.rhand.interval)
+    player_obj.isdefeated = 1
+    player_obj.lhand.destroy()
+    player_obj.rhand.destroy()
+    player_obj.snowball.destroy()
+    player_obj.healthbar.destroy()
+    player_obj.usernameText.destroy()
+    if (player_obj.indicatorCircle) {
+      player_obj.indicatorCircle.destroy()
+    }
+    if (!now) {
+      if (player_obj === player && gameType !== "co-op") {
+        toastManager.showToast(player_obj.usernameText.text + " will respawn in "+(playerRespawnTime/1000)+" seconds...", duration=500, delay=playerRespawnTime);
+      }
+      gameSceneObject.tweens.add({
+        targets: player_obj,
+        angle: 1080, // 360 degrees * 3 = 1080 degrees
+        scale: 0,
+        alpha: 0,
+        duration: 990, // Duration in ms, adjust as needed
+        ease: 'Linear', // You can choose different easing functions if desired
+        onComplete: function() {
+          if (otherPlayers.hasOwnProperty(player_obj.assigned_id)) {
+            delete otherPlayers[player_obj.assigned_id];
+          }
+          player_obj.destroy();
+        }
+      });
+    } else {
+      player_obj.destroy();
+    }
+  }
+  function isLeft(angle) {
+    // Normalize angle to [0, 2π) range
+    angle = (angle + 2 * Math.PI) % (2 * Math.PI);
+    return (angle > Math.PI / 2 && angle < 3 * Math.PI / 2);
+  }
+  function snowballHitsEntity(entity, snowball) {
+    if (snowball.isdying || entity.isdefeated) return
+    if (snowball.owner_entityobj !== entity) {
+      if (gameType === 'free-for-all') {
+        snowball.isdying = true
+        snowball.playAnimThenDestroy();
+        if (entity === player) {
+          entity.takehit(snowballDmg, snowball.owner_entityobj)
+        }
+      } else if ((entity === player || entity.entity_type === 'otherPlayer') && (snowball.owner_entityobj.entity_type === 'elf' || snowball.owner_entityobj.entity_type === 'santa')) {
+        snowball.isdying = true
+        snowball.playAnimThenDestroy();
+        if (entity === player) {
+          entity.takehit(snowballDmg, snowball.owner_entityobj)
+        }
+      } else if (entity.entity_type === 'elf' && snowball.owner_entityobj.entity_type !== 'elf' && snowball.owner_entityobj.entity_type !== 'santa') {
+        snowball.isdying = true
+        snowball.playAnimThenDestroy();
+        if ((String(entity.pid) === String(assigned_id) && snowball.owner_entityobj.assigned_id === assigned_id) || singlePlayer === "true") {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ a: 'e', 'eid': entity.eid, i: playerId}));
+          }
+          entity.isdefeated = true
+          entity.anims.pause();
+          entity.play('faint');
+        }
+      } else if (entity.entity_type === 'santa') {
+        snowball.isdying = true
+        snowball.playAnimThenDestroy();
+        if (typeof santaObject.tintTimeoutInterval === 'number') {
+          clearInterval(santaObject.tintTimeoutInterval)
+        }
+        santaObject.tintTimeoutInterval = setTimeout(function() {
+          santaObject.clearTint();
+        }, 2000)
+        if (snowball.owner_entityobj.assigned_id === assigned_id || singlePlayer === "true") {
+          santaObject.setTint(myPlayerTint);
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({a: 's', i: playerId}));
+          }
+        } else {
+          santaObject.setTint(otherPlayerTint);
+        }
+      } else if (entity.entity_type === 'dwarf' && ['santa','elf'].includes(snowball.owner_entityobj.entity_type)) {
+        snowball.isdying = true
+        snowball.playAnimThenDestroy();
+      }
+    }
+  }
+  function customOverlapCondition(entity_obj, projectile) {
+    var hb = playersHitBoxSize
+    if (entity_obj.entity_type === 'elf') {
+      hb = elfHitBoxSize
+    } else if (entity_obj.entity_type === 'santa') {
+      hb = santaHitBoxSize
+    } else if (entity_obj.entity_type === 'dwarf') {
+      hb = [40,40,50,50]
+    }
+    const leftBoundary = entity_obj.x - hb[0];
+    const rightBoundary = entity_obj.x + hb[1];
+    const topBoundary = entity_obj.y - hb[2];
+    const bottomBoundary = entity_obj.y + hb[3];
+
+    // Check if the projectile's position is within the defined boundaries
+    return (
+      projectile.x > leftBoundary &&
+      projectile.x < rightBoundary &&
+      projectile.y > topBoundary &&
+      projectile.y < bottomBoundary
+    );
+  }
+
+  function scaleSpriteToSize(sprite, desiredWidth, desiredHeight) {
+    let aspectRatio = sprite.width / sprite.height;
+    let targetAspectRatio = desiredWidth / desiredHeight;
+
+    if (aspectRatio > targetAspectRatio) {
+        // Original image is wider than target aspect ratio
+        sprite.scaleX = desiredWidth / sprite.width;
+        sprite.scaleY = sprite.scaleX;
+    } else {
+        // Original image is taller than target aspect ratio or equal
+        sprite.scaleY = desiredHeight / sprite.height;
+        sprite.scaleX = sprite.scaleY;
+    }
+  }
+
+  function randomPositionWithPadding(spriteWidth, spriteHeight, worldSize, padding) {
+    const minX = padding;
+    const maxX = worldSize - spriteWidth - padding;
+
+    const minY = padding;
+    const maxY = worldSize - spriteHeight - padding;
+
+    return {
+        x: Math.floor(Math.random() * (maxX - minX + 1)) + minX,
+        y: Math.floor(Math.random() * (maxY - minY + 1)) + minY
+    };
+  }
+  function createPlayerObject(plrDNA, sposX, sposY) {
+    var player_obj;
+    if (gameSceneObject.textures.exists(plrDNA)) {
+      player_obj = gameSceneObject.physics.add.sprite(sposX, sposY, plrDNA);
+      scaleSpriteToSize(player_obj, 100, 200);
+    } else {
+      let tmpDna = 'avatar' + (Math.floor(Math.random() * 9) + 1);
+      player_obj = gameSceneObject.physics.add.sprite(sposX, sposY, tmpDna);
+      //https://2022.kringlecon.com/images/export/ATATATTAATATATATATATTATAATATATATCGGCGCCGATATATATATATGCATATATATATATATATGCATATTACGATATATATATATGCGCATATATATATATATCGATATTAGC.png
+      let playerDNAurl = '/dnaloader/' + encodeURIComponent(plrDNA) + '.png'
+      
+      // Load the texture dynamically
+      gameSceneObject.load.image(plrDNA, playerDNAurl);
+      gameSceneObject.load.once('complete', () => {
+          // Once the texture is loaded, apply it to the player sprite
+          if (gameSceneObject.textures.exists(plrDNA)) {
+            player_obj.setTexture(plrDNA);
+          }
+          scaleSpriteToSize(player_obj, 100, 200);
+      });
+      gameSceneObject.load.start();
+    }
+    return player_obj
+  }
+  function enemyFindClosestPlayer(enemyObject) {
+    let closestPlayer = null;
+    let closestDistance = Infinity;
+    // Assume otherPlayers is an object where keys are user IDs and values are player sprites
+    for (let userId in otherPlayers) {
+      let plr = otherPlayers[userId];
+      let dx = plr.x - enemyObject.x;
+      let dy = plr.y - enemyObject.y;
+      let distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance < closestDistance && plr.isdefeated === 0) {
+        closestDistance = distance;
+        closestPlayer = plr;
+      }
+    }
+
+    // Also check the main player
+    let dx = player.x - enemyObject.x;
+    let dy = player.y - enemyObject.y;
+    let distance = Math.sqrt(dx * dx + dy * dy);
+    if (distance < closestDistance && player.isdefeated === 0) {
+      closestPlayer = player;
+    }
+    if (closestPlayer) {
+      return closestPlayer
+    }
+  }
+
+  function enemyThrowSnowBall(enemyObject, closestPlayer, xPos, yPos, speedmod=1.0) {
+    let snowball = projectiles.create(xPos, yPos, 'snowball');
+    if (snowball && snowball.active) {
+      let dx = closestPlayer.x - closestPlayer.lastX;
+      let dy = closestPlayer.y - closestPlayer.lastY;
+
+      // Normalize the direction vector
+      let magnitude = Math.sqrt(dx * dx + dy * dy);
+
+      // Calculate the distance between Santa and the target
+      let distance = Phaser.Math.Distance.Between(xPos, yPos, closestPlayer.x, closestPlayer.y);
+
+      // Adjust the prediction time based on the distance
+      // This is just an example formula, you may need to tweak the values to get the desired behavior
+      const predictionTime = Math.min(distance / (snowballSpeed * speedmod), 1);  // Assume snowballSpeed is a constant defined elsewhere
+
+      let predictedX, predictedY;
+      if (magnitude > 0) {
+        dx /= magnitude;
+        dy /= magnitude;
+        
+        // Project forward along the direction of movement to estimate the player's future position
+        predictedX = closestPlayer.x + dx * player.moveVelocity * predictionTime;
+        predictedY = closestPlayer.y + dy * player.moveVelocity * predictionTime;
+      } else {
+        // Player is stationary, use current position as the target
+        predictedX = closestPlayer.x;
+        predictedY = closestPlayer.y;
+      }
+      // Calculate the angle to the predicted position
+      const angle = Phaser.Math.Angle.Between(xPos, yPos, predictedX, predictedY);
+      snowball.setRotationDirection( isLeft(angle) );
+      snowball.setOwner(enemyObject);
+      snowball.speed = snowball.speed * speedmod
+      snowball.fire(angle);
+    }
+  }
+
+  function findClosestEnemyObject(jSprite, allElvesArray, santaObjectSprite) {
+    let closestObject = null;
+    let closestDistance = Infinity;  // Start with a distance that's as large as possible
+    // Check each elf
+    for (const eid in allElves) {
+      let elf = allElvesArray[eid];
+      if (elf.isdefeated) {continue}
+      let distance = Phaser.Math.Distance.Between(jSprite.x, jSprite.y, elf.x, elf.y);
+      if (distance < closestDistance && distance < 400) {
+        closestDistance = distance;
+        closestObject = elf;
+      }
+    }
+    // Check Santa
+    if (santaObjectSprite) {
+      let santaDistance = Phaser.Math.Distance.Between(jSprite.x, jSprite.y, santaObjectSprite.x, santaObjectSprite.y);
+      if (santaDistance < closestDistance && santaDistance < 400) {
+        closestDistance = santaDistance;
+        closestObject = santaObjectSprite;
+      }
+    }
+    return closestObject;
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    if (!'WebSocket' in window) {
+      return alert("Your browser does not support websockets to play Snowball Hero!")
+    }
+    ws = new WebSocket(
+      ws_type 
+      + window.location.href.split('/').slice(2, 3).join('/')
+      + "/ws/?username=" + encodeURIComponent(username)
+      + "&roomId=" + encodeURIComponent(roomId)
+      + "&roomType=" + encodeURIComponent(roomType)
+      + "&gameType=" + encodeURIComponent(gameType)
+      + "&id=" + encodeURIComponent(playerId)
+      + "&dna=" + encodeURIComponent(playerDNA)
+      + "&pos=" + encodeURIComponent(starting_pos.x + '-' + starting_pos.y)
+      + "&singlePlayer=" + encodeURIComponent(singlePlayer)
+    );
+    ws.onerror = function(event) {
+      console.log(event)
+      alert('WebSocket error occurred when trying to play snowball hero. See developer console for details.');
+    };
+    ws.onclose = function(event) {
+      console.log("Snowball Hero Closed!")
+    }
+    ws.onopen = function() {
+      if (ws.readyState === WebSocket.OPEN) {
+        new Phaser.Game(config);
+      }
+    };
+    ws.onmessage = (event) => {
+      let data = JSON.parse(event.data);
+      var player_obj = player;
+      if (data.lose) {
+        stopTheGame = true
+      } else if (data.error) {
+        console.log(data.error)
+        alert(data.error + ". See developer console for details.")
+      } else if (data.hash && data.resourceId) {
+        santaObject.isdefeated = true
+        winGameText = gameSceneObject.add.text(230, 208, 'Victory!', { fontFamily: "Arial", fontSize: '40px', fill: '#000000' });
+        winGameText.setDepth(9999999)
+        santaObject.arm.destroy()
+        santaObject.snowball.destroy()
+        santaObject.healthbar.destroy()
+        gameSceneObject.tweens.add({
+          targets: santaObject,
+          angle: 1080, 
+          scale: 0,
+          alpha: 0,
+          duration: 990, 
+          ease: 'Linear',
+          onComplete: function() {
+            santaObject.destroy();
+            __POST_RESULTS__(data);
+            scrollend.setVisible(true);
+            talkingjared.setVisible(true)
+            talkingjared.play('talkingjared')
+            talkingjaredSound.play()
+            if (!isaudio) {
+              talkingjaredSound.setVolume(0.001)
+            }
+          }
+        });
+      } else if (data.p1 && data.p2) {
+        player1_obj = (assigned_id.toString() === data.p1.toString()) ? player : otherPlayers[data.p1];
+        player2_obj = (assigned_id.toString() === data.p2.toString()) ? player : otherPlayers[data.p2];
+        if (player1_obj && player2_obj) {
+          let messages = [
+            '❄️' + player2_obj.username + " snowed " + player1_obj.username + "!",
+            '❄️' + player2_obj.username + " iced " + player1_obj.username + "!",
+            '❄️' + player2_obj.username + " frosted " + player1_obj.username + "!",
+            '❄️' + player2_obj.username + " chilled " + player1_obj.username + "!",
+            '❄️' + player2_obj.username + " froze " + player1_obj.username + "!"
+          ];
+          let randomMessage = messages[Math.floor(Math.random() * messages.length)];
+          toastManager.showToast(randomMessage, duration=500, delay=2000);
+        }
+      } else if (data.assigned_id) {
+        assigned_id = data.assigned_id + ''
+        player.assigned_id = assigned_id + ''
+        if (data.players && data.players.length)  {
+          data.players.forEach(playerData => {
+            createOtherPlayer.bind(gameSceneObject)(playerData)
+          })
+        }
+      } else if (data.Username && data.DNA && data.PlayerID) {
+        if (otherPlayers.hasOwnProperty(data.PlayerID)) {
+          playerDeath(otherPlayers[data.PlayerID], now=true)
+        }
+        createOtherPlayer.bind(gameSceneObject)(data)
+      } else if (data.a && data.a === 't') {
+        if (data.i + '' !== assigned_id) {
+          player_obj = otherPlayers[data.i + '']
+        }
+        if (player_obj) {
+          if (player_obj.rhand && player_obj.rhand.active) {
+            player_obj.rhand.play('throw');
+          }
+          let snowball = projectiles.create(player_obj.snowball.x, player_obj.snowball.y, 'snowball');
+          if (gameType === "co-op") {
+            if (player_obj.assigned_id === assigned_id) {
+              snowball.setTint(myPlayerTint);
+            } else {
+              snowball.setTint(otherPlayerTint);
+            }
+          }
+          if (snowball && snowball.active) {
+            snowball.setRotationDirection( isLeft(data.g) );
+            snowball.setOwner(player_obj)
+            snowball.fire(data.g);
+          }
+        }
+      } else if (data.p) {
+        if (data.e) {
+          var eids = data.e.map(function(element) {
+            return String(element.eid);
+          });
+          for (const eid in allElves) {
+            const elfobj = allElves[eid];
+            if (elfobj.isdefeated) {
+              continue
+            }
+            if (!eids.includes(eid)) {
+              elfobj.isdefeated = true
+              elfobj.anims.pause();
+              elfobj.play('faint');
+            }
+          }
+          data.e.forEach(elfData => {
+            let elf_id = elfData.eid+''
+            if (allElves.hasOwnProperty(elf_id)) {
+              if (!allElves[elf_id].isdefeated) {
+                if (elfData.targetX !== elfData.x) {
+                  allElves[elf_id].targetX = elfData.x
+                }
+                if (elfData.targetY !== elfData.y) {
+                  allElves[elf_id].targetY = elfData.y
+                }
+              }
+            } else {
+              let elfobj = gameSceneObject.physics.add.sprite(elfData.x, elfData.y, 'elf');
+              gameSceneObject.physics.add.overlap(projectiles, elfobj, snowballHitsEntity, customOverlapCondition, gameSceneObject);
+              elfobj.isdefeated = false
+              elfobj.setFrame(0)
+              elfobj.play('elfIdle');
+              elfobj.setScale(2)
+              elfobj.lastThrowtime = Date.now() + Math.floor(Math.random() * 1001)
+              elfobj.entity_type = 'elf'
+              elfobj.on('animationcomplete', function(animation, frame) {
+                if(animation.key === 'faint') {
+                  gameSceneObject.tweens.add({
+                    targets: allElves[elf_id],
+                    alpha: 0,  
+                    ease: 'linear',
+                    repeat: 0, 
+                    duration: 400,
+                    onComplete: function() {
+                      delete allElves[elf_id]
+                      elfobj.destroy()
+                    }
+                  });
+                } else if (animation.key === 'elfThrow') {
+                  if (!elfobj.anims.isPlaying) {
+                    elfobj.play('elfIdle');
+                  }
+                  var closestPlayer = enemyFindClosestPlayer(elfobj)
+                  if (closestPlayer) {
+                    enemyThrowSnowBall(elfobj, closestPlayer, elfobj.x, elfobj.y, speedmod=0.4)
+                  }
+                }
+              });
+              allElves[elf_id] = elfobj
+              allElves[elf_id].eid = elf_id
+              allElves[elf_id].targetY = elfData.y
+              allElves[elf_id].targetX = elfData.x
+              allElves[elf_id].y = elfData.y
+              allElves[elf_id].x = elfData.x
+              allElves[elf_id].pid = elfData.pid + ''
+              allElves[elf_id].setDepth(elfData.y - 48)
+              allElves[elf_id].interpolateProgress = 0
+              if (allElves[elf_id].pid === assigned_id) {
+                elfobj.setTint(myPlayerTint);
+              } else {
+                elfobj.setTint(otherPlayerTint);
+              }
+            }
+          })
+        }
+        if (data.s && data.s.x && data.s.y && data.s.h) {
+          // {x: 249.5741329071656, y: 301.35206320959986, h: 50}
+          if (typeof santaObject === 'undefined') {
+            santaObject = gameSceneObject.physics.add.sprite(data.s.x, data.s.y, 'santa');
+            santaObject.healthbar = gameSceneObject.add.image(santaObject.x, santaObject.y, 'healthbar')
+            santaObject.healthbar.setFrame(0);
+            santaObject.healthbar.setScale(1.5)
+            santaObject.arm = gameSceneObject.physics.add.sprite(data.s.x, data.s.y, 'santa_arm');
+            santaObject.arm.angle = 180
+            santaObject.arm.flipX = true
+            santaObject.arm.isThrowing = false
+            santaObject.snowball = gameSceneObject.add.image(santaObject.arm.x,  santaObject.arm.y, 'snowball')
+            santaObject.snowball.setOrigin(0.5, 0.5)
+            santaObject.snowball.setScale(0.8)
+            santaObject.arm.throw = function() {
+              santaObject.arm.isThrowing = true
+              santaObject.snowball.setVisible(false)
+              var ang = "+= 180"
+              if (!santaObject.flipX) {
+                var ang = "-= 180"
+              }
+              var closestPlayer = enemyFindClosestPlayer(santaObject)
+              if (closestPlayer) {
+                enemyThrowSnowBall(santaObject, closestPlayer, santaObject.snowball.x, santaObject.snowball.y, speedmod=0.85)
+              }
+              gameSceneObject.tweens.add({
+                targets: santaObject.arm,
+                angle: ang,
+                ease: 'Sine.inOut',
+                yoyo: false,
+                repeat: 0,
+                duration: 200,
+                paused: false,
+                onComplete: function() {
+                  santaObject.snowball.setVisible(true)
+                  santaObject.arm.angle = 180
+                  setTimeout(function() {
+                    santaObject.arm.isThrowing = false
+                  }, santaThrowDelay) 
+                },
+              });
+            }
+            santaObject.isdefeated = false
+            santaObject.health = data.s.h
+            santaObject.entity_type = 'santa'
+            gameSceneObject.physics.add.overlap(projectiles, santaObject, snowballHitsEntity, customOverlapCondition, this);
+            santaObject.targetY = data.s.y
+            santaObject.targetX = data.s.x
+            santaObject.y = data.s.y
+            santaObject.x = data.s.x
+            santaObject.setDepth(santaObject.y - 0)
+            santaObject.interpolateProgress = 0
+            santaObject.walkingTween = gameSceneObject.tweens.add({
+              targets: santaObject,
+              rotation: 0.1,  // This is in radians. Adjust this value to get the desired effect.
+              ease: 'Sine.inOut',
+              yoyo: true,
+              repeat: -1,
+              duration: 150,
+              paused: true  
+            });
+            santaObject.walkingTween.play()
+          } else {
+            santaObject.targetY = data.s.y
+            santaObject.targetX = data.s.x
+            if (santaObject.health !== data.s.h) {
+              santaObject.health = data.s.h
+              santaObject.clearTint();
+              santaObject.healthbar.setFrame( Math.min( Math.max(Math.abs( 50 - santaObject.health ), 0), 49) )
+              if (santaObject.health <= 0) {
+                santaObject.isdefeated = true
+              }
+            }
+          }
+        }
+        // Loop over all the players in the received data
+        data.p.forEach(playerData => {
+          playerData.i += ''
+          if (playerData.i === assigned_id) {
+            if (!player.isregistered) {
+              player.isregistered = true
+            }
+            return; // skip processing the current player's own data
+          }
+          if (otherPlayers.hasOwnProperty(playerData.i) && otherPlayers[playerData.i].active) {
+            // Update player's target position if already present
+            otherPlayers[playerData.i].targetX = playerData.x || centerX;
+            otherPlayers[playerData.i].targetY = playerData.y || centerY;
+            otherPlayers[playerData.i].interpolateProgress = 0;
+            otherPlayers[playerData.i].lastUpdate = Date.now();
+            otherPlayers[playerData.i].ready = playerData.r
+            otherPlayers[playerData.i].assigned_id = playerData.i + ''
+            if (otherPlayers[playerData.i].health !== playerData.h) {
+              otherPlayers[playerData.i].health = Math.min( Math.max(Math.abs( playerData.h ), 0), 50)
+              otherPlayers[playerData.i].healthbar.setFrame( Math.min( Math.max(Math.abs( 50 - otherPlayers[playerData.i].health ), 0), 49) )
+            }
+            if (otherPlayers[playerData.i].d !== playerData.d) {
+              otherPlayers[playerData.i].d = playerData.d
+              if (playerData.d) {
+                playerDeath(otherPlayers[playerData.i])
+              }
+            }
+          }
+        });
+      }
+    };
+
+
+  });
+</script>
+</body>
