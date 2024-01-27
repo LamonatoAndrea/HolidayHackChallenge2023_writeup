@@ -25,3 +25,4 @@ Even though I cheated, at the end you are presented with an “old-timey radio�
 | AUDIO                    | MORSE                     | DECODED |
 | ------------------------ | ------------------------- | ------- |
 | ![audio](imgs/audio.png) | `−−· ·−·· −−−−− ·−· −·−−` | `GL0RY` |
+And the flag is `GL0RY`, with a `0` not an `O`...that also took its time, and manual decoding 🙂
