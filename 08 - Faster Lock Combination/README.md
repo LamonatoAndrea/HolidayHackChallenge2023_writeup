@@ -1,6 +1,6 @@
 # Writeup for The 2023 SANS Holiday Hack Challenge: A Holiday Odyssey \| Featuring 6: Geese A-Lei'ing!
 ## Faster Lock Combination
-Difficulty: :christmas_tree:   
+Difficulty: :christmas_tree::christmas_tree:   
 Over on Steampunk Island, Bow Ninecandle is having trouble opening a padlock. Do some research and see if you can help open it!
 
 ### Solution
