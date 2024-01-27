@@ -1,5 +1,5 @@
 # Writeup for The 2023 SANS Holiday Hack Challenge: A Holiday Odyssey \| Featuring 6: Geese A-Lei'ing!
-## KringleCon Orientation
+## Holiday Hack Orientation
 Difficulty: :christmas_tree:  
 Talk to Jingle Ringford on Christmas Island and get your bearings at Geese Islands
 
