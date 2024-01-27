@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faster Lock</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #000;
+      /* or any desired background color */
+    }
+
+    canvas {
+      margin: 0;
+    }
+  </style>
+  <script src="js/conduit.js"></script>
+  <script src="js/phaser.min.js"></script>
+</head>
+
+<body>
+  <script>
+    var config = {
+      type: Phaser.AUTO,
+      width: 800,
+      height: 700,
+      scene: {
+        preload: preload,
+        create: create,
+        update: update
+      },
+      scale: {
+        mode: Phaser.Scale.FIT,
+        //autoCenter: Phaser.Scale.CENTER_BOTH
+      }
+    };
+
+    function GenerateCombination() {
+      function getRandomElement(arr) {
+        const randomIndex = Math.floor(Math.random() * arr.length);
+        return arr[randomIndex];
+      }
+      function rollover(num) {
+        if (num >= 40) {
+          num -= 40
+        }
+        return num
+      }
+      function gen_guess_numbers(rem) {
+        var guess_number1 = Math.floor(Math.random() * 12);
+        var guess_number2 = Math.floor(Math.random() * 12);
+        while (guess_number2 == guess_number1) {
+          guess_number2 = Math.floor(Math.random() * 12);
+        }
+        var gnum1_nums = [guess_number1, guess_number1 + 10, guess_number1 + 20, rollover(guess_number1 + 30)]
+        var gnum2_nums = [guess_number2, guess_number2 + 10, guess_number2 + 20, rollover(guess_number2 + 30)]
+        var gnum1_contains = [gnum1_nums[0] % 4, gnum1_nums[1] % 4, gnum1_nums[2] % 4, gnum1_nums[3] % 4].includes(rem)
+        var gnum2_contains = [gnum2_nums[0] % 4, gnum2_nums[1] % 4, gnum2_nums[2] % 4, gnum2_nums[3] % 4].includes(rem)
+        return [guess_number1, gnum1_nums, guess_number2, gnum2_nums, gnum1_contains, gnum2_contains]
+      }
+      var first_number = Math.floor(Math.random() * 40);
+      while (first_number > 37 || first_number < 17) {
+        first_number = Math.floor(Math.random() * 40);
+      }
+      var first_number_sticky = first_number - 5
+      var remainder = first_number % 4
+      var cont = true
+      var guess_number1, gnum1_nums, guess_number2, gnum2_nums, gnum1_contains, gnum2_contains
+      var bad_third_number
+      while (cont) {
+        [guess_number1, gnum1_nums, guess_number2, gnum2_nums, gnum1_contains, gnum2_contains] = gen_guess_numbers(remainder)
+        while ((gnum1_contains && gnum2_contains) || (!gnum1_contains && !gnum2_contains)) {
+          [guess_number1, gnum1_nums, guess_number2, gnum2_nums, gnum1_contains, gnum2_contains] = gen_guess_numbers(remainder)
+        }
+        var possible_3rd_numbers = [...gnum1_nums.filter(num => num % 4 === remainder), ...gnum2_nums.filter(num => num % 4 === remainder)]
+        var third_number = getRandomElement(possible_3rd_numbers)
+        while (third_number == first_number) {
+          third_number = getRandomElement(possible_3rd_numbers)
+        }
+        bad_third_number = possible_3rd_numbers.filter(item => item !== third_number)[0];
+        if (!([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].includes(third_number) || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].includes(bad_third_number))) {
+          cont = false
+        }
+      }
+      var remainder_add2 = remainder + 2
+      var remainder_add2_add4 = remainder_add2 + 4
+      var second_number_guesses_row1 = [remainder_add2, remainder_add2 + 8, remainder_add2 + 16, remainder_add2 + 24, rollover(remainder_add2 + 32)]
+      var second_number_guesses_row2 = [remainder_add2_add4, remainder_add2_add4 + 8, remainder_add2_add4 + 16, remainder_add2_add4 + 24, rollover(remainder_add2_add4 + 32)]
+      const range = 2;
+      function circularDistance(a, b) {
+        const totalNumbers = 40; // 0 to 39 inclusive
+        const directDist = Math.abs(a - b);
+        const circularDist = totalNumbers - directDist;
+        return Math.min(directDist, circularDist);
+      }
+      function isOutsideCircularRangeOf(candidate, target) {
+        return circularDistance(candidate, target) > range;
+      }
+      function filterOutsideCircularRange(numbers, target) {
+        return numbers.filter(candidate => isOutsideCircularRangeOf(candidate, target));
+      }
+      var filteredSecondNumbers = filterOutsideCircularRange([...second_number_guesses_row1, ...second_number_guesses_row2], first_number);
+      var second_number = getRandomElement(filteredSecondNumbers)
+      while (second_number == first_number || second_number == third_number) {
+        second_number = getRandomElement(filteredSecondNumbers)
+      }
+      return {
+        "first_number": first_number,
+        "second_number": second_number,
+        "third_number": third_number,
+        "bad_third_number": bad_third_number,
+        "first_number_sticky": first_number_sticky,
+        "guess_number1": guess_number1,
+        "guess_number2": guess_number2
+      }
+    }
+
+    var statusBox;
+    var tensionBox;
+    var lock_numbers = GenerateCombination()
+    var latch_open;
+    var latch_open_back;
+    var lockContainer;
+    var lock_body;
+    var lock_dial;
+    var lock_shackle;
+    var latch_back;
+    var latch_front
+    var cursors;
+    var isTweenActive = false;
+    var lastClickTime = 0;
+    var shackleStartPosition = 225;
+    var shackleSlackOffset = 10;
+    var doubleClickDelay = 300;
+    var stage = 0
+    var first_set = false
+    var first_passed = false
+    var degrees_traversed = 0
+    var second_set = false
+    var third_set = false
+    var tension_level = 0
+
+
+    var rotationSpeed = 0.045;
+
+    var game = new Phaser.Game(config);
+
+    function preload() {
+      this.load.image('lock_body', 'images/fasterlock_body.png');
+      this.load.image('lock_dial', 'images/fasterlock_dial.png');
+      this.load.image('lock_shackle', 'images/fasterlock_shackle.png');
+      this.load.image('latch_back', 'images/latch_small_back.png');
+      this.load.image('latch_front', 'images/latch_small_front.png');
+      this.load.image('latch_open', 'images/latch_open.png');
+      this.load.image('latch_open_back', 'images/latch_open_back3.png');
+      this.load.image('door_crevice', 'images/door_crevice.jpg');
+    }
+
+    function moveLockIntoUnlockedPosition() {
+      isTweenActive = true;
+      game.scene.scenes[0].tweens.add({
+        targets: [lock_dial, lock_body],
+        y: '+=75',
+        duration: 500,  // can adjust the duration as needed
+        ease: 'Power2',
+        onComplete: function () {
+          game.scene.scenes[0].tweens.add({
+            targets: lockContainer,
+            y: '-=215',
+            x: '+=105',
+            angle: '-=90', // Rotate 90 degrees to the left
+            duration: 500,
+            ease: 'Power2',
+            onComplete: function () {
+              game.scene.scenes[0].tweens.add({
+                targets: lockContainer,
+                y: '+=800',
+                x: '-=200',
+                duration: 1000,
+                ease: 'Linear',
+                onComplete: function () {
+                  latch_back.setVisible(false)
+                  latch_front.setVisible(false)
+                  latch_open_back.setVisible(true)
+                  latch_open.setVisible(true)
+                  game.scene.scenes[0].tweens.add({
+                    targets: latch_open,
+                    scaleX: -1,
+                    x: '+=45',
+                    duration: 500,
+                    ease: 'Linear',
+                    yoyo: false,
+                    onComplete: function () {
+                      checkit()
+                    }
+                  })
+                }
+              })
+            }
+          });
+        }
+      });
+    }
+
+    function create() {
+      var bg = this.add.image(-340, -100, 'door_crevice').setOrigin(0, 0);
+      bg.setScale(0.9)
+      latch_back = this.add.image(285, 127, 'latch_back');
+      latch_back.setScale(1.25);
+      latch_open_back = this.add.image(285, 127, 'latch_open_back');
+      latch_open_back.setScale(1.25);
+      latch_open_back.setVisible(false)
+
+      lock_shackle = this.add.image(0, shackleStartPosition + shackleSlackOffset - 413, 'lock_shackle').setInteractive();
+      lock_body = this.add.image(0, -10, 'lock_body');
+      lock_dial = this.add.image(0, 10, 'lock_dial');  // Adjust the y position as needed
+
+      // Create the container and add the lock components to it
+      lockContainer = this.add.container(400, 413, [lock_shackle, lock_body, lock_dial]);
+      latch_front = this.add.image(285, 127, 'latch_front');
+      latch_front.setScale(1.25);
+      latch_open = this.add.image(285, 127, 'latch_open');
+      latch_open.setScale(1.25);
+      latch_open.setVisible(false)
+      var currentX = latch_open.x;
+      latch_open.setOrigin(0, 0.5);
+      latch_open.x = currentX - ((latch_open.width * 1.25) * 0.5);
+
+      // White box for instructions
+      var instructionBox = this.add.graphics();
+      instructionBox.fillStyle(0xFFFFFF, 1);
+      instructionBox.fillRect(500, 580, 295, 110);
+      this.add.text(510, 585, 'Instructions:', { fontSize: '16px', fill: '#000' });
+      this.add.text(510, 610, '1. Double click dial to reset.', { fontSize: '12px', fill: '#000' });
+      this.add.text(510, 625, '2. Left/Right arrows to move dial.', { fontSize: '12px', fill: '#000' });
+      this.add.text(510, 640, '3. Drag shackle up for pressure/unlock.', { fontSize: '12px', fill: '#000' });
+
+      // Status box and text
+      statusBox = this.add.graphics();
+      statusBox.fillStyle(0x00e600, 1); // Initial status is green
+      statusBox.fillRect(530, 660, 20, 20);
+
+      tensionBox = this.add.graphics();
+      tensionBox.fillStyle(0x00e600, 1); // Initial status is green
+      tensionBox.fillRect(655, 660, 20, 20);
+
+      // Save the statusBox to be accessible in the update function
+      this.add.text(560, 662, 'Reset Status', { fontSize: '12px', fill: '#000' });
+      this.add.text(680, 662, 'Tension Status', { fontSize: '12px', fill: '#000' });
+
+      // Initialize arrow key inputs
+      cursors = this.input.keyboard.createCursorKeys();
+      // Enable drag for the lock_shackle
+      this.input.setDraggable(lock_shackle);
+      shackleStartPosition = lock_shackle.y - shackleSlackOffset
+      // Lock the shackle's movement along the y-axis
+      this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
+        if (dragY >= shackleStartPosition && dragY <= shackleStartPosition + shackleSlackOffset) {
+          if (stage == 3 && !isTweenActive) {
+            moveLockIntoUnlockedPosition()
+          } else if (stage !== 3) {
+            gameObject.y = dragY;
+          }
+        }
+      });
+      // Add an event for when the drag ends
+      this.input.on('dragend', function (pointer, gameObject) {
+        game.scene.scenes[0].tweens.add({
+          targets: gameObject,
+          y: shackleStartPosition + shackleSlackOffset,
+          duration: 200,
+          ease: 'Power2'
+        });
+      });
+      // Double click listener for the dial
+      lock_dial.setInteractive();
+      lock_dial.on('pointerup', function () {
+        var currentTime = new Date().getTime();
+        if (currentTime - lastClickTime < doubleClickDelay && !isTweenActive) {
+          isTweenActive = true;
+          this.scene.tweens.add({
+            targets: lock_dial,
+            angle: '+=' + (1080 - lock_dial.angle),
+            duration: 1000,
+            ease: 'Cubic.easeOut',
+            onComplete: function () {
+              lock_dial.angle = 0;
+              isTweenActive = false;
+              stage = 0
+              first_set = false
+              first_passed = false
+              degrees_traversed = 0
+              second_set = false
+              third_set = false
+              statusBox.clear().fillStyle(0x00e600, 1).fillRect(530, 660, 20, 20);
+              tension_level = 0
+            }
+          });
+        }
+        lastClickTime = currentTime;
+      });
+    }
+    function lerp(start, end, amt) {
+      return start * (1 - amt) + end * amt;
+    }
+
+    function getColorFromFloat(value) {
+      if (value < 0) value = 0;
+      if (value > 1) value = 1;
+      // Extracting the RGB components from the start and end colors
+      let startR = (0x00e600 & 0xFF0000) >> 16;
+      let startG = (0x00e600 & 0x00FF00) >> 8;
+      let startB = (0x00e600 & 0x0000FF);
+      let endR = (0xFF0000 & 0xFF0000) >> 16;
+      let endG = (0xFF0000 & 0x00FF00) >> 8;
+      let endB = (0xFF0000 & 0x0000FF);
+      // Calculate the new color components based on the float value
+      let newR = Math.floor(lerp(startR, endR, value));
+      let newG = Math.floor(lerp(startG, endG, value));
+      let newB = Math.floor(lerp(startB, endB, value));
+      // Combine the components back into a single integer
+      return (newR << 16) | (newG << 8) | newB;
+    }
+    //closestMark(lock_dial.angle)
+    function closestMark(angle) {
+      // Normalize the angle to a value between 0 and 360
+      while (angle < 0) {
+        angle += 360;
+      }
+      angle %= 360;
+      // Reverse the direction by subtracting the angle from 360
+      angle = 360 - angle;
+      // Determine the closest mark
+      const mark = Math.round(angle / 9);
+      // Since we have 40 marks from 0 to 39, adjust if the result is 40
+      return mark % 40;
+    }
+    function roundToNearestHalfOnly(num) {
+      let wholeNumber = Math.floor(num);
+      let fraction = num - wholeNumber;
+
+      if (fraction < 0.25) {
+        return wholeNumber + 0.5;
+      } else if (fraction < 0.75) {
+        return wholeNumber + 0.5;
+      } else {
+        return wholeNumber + 0.5;
+      }
+    }
+    function isInt(n) {
+      return n % 1 === 0;
+    }
+    function closestHalfMark(angle) {
+      // Normalize the angle to [0, 360)
+      while (angle < 0) angle += 360;
+      angle %= 360;
+
+      // Find the closest half-mark.
+      // Each mark is 9 degrees apart, and each half mark is 4.5 degrees apart.
+      const halfMark = roundToNearestHalfOnly(angle / 9);
+
+      // Convert to the halfway point format (i.e., 0.5, 1.5, 2.5,...)
+      return halfMark;
+    }
+    function checkit() {
+      // Function to get the query parameter by name
+      function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+      }
+
+      // Retrieve the request ID from the URL query parameters
+      var requestID = getQueryParam('id');
+
+      if (!requestID) {
+        requestID = "00000000-0000-0000-0000-000000000000"
+      }
+      // Build the URL with the request ID as a query parameter
+      const url = new URL(`${window.location.protocol}//${window.location.hostname}:${window.location.port}/checkcomplete`);
+      url.searchParams.append('id', requestID);
+      // Make the request to the server
+      fetch(url)
+        .then(response => {
+          // Check if the request was successful
+          if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.statusText);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.hash) {
+            __POST_RESULTS__(data)
+          }
+        })
+        .catch(error => {
+          // Log any errors to the console
+          console.error('There has been a problem with your fetch operation:', error);
+        });
+    }
+    function update(time, delta) {
+      // Adjust the rotation based on delta time
+      if (!isTweenActive) {
+        var moved = false
+        var degree_change = 0
+        var current_mark = closestMark(lock_dial.angle)
+        var current_HalfMark = closestHalfMark(lock_dial.angle)
+        // Calculate the top and bottom bounds
+        let top_bound = shackleStartPosition;
+        let bottom_bound = shackleStartPosition + shackleSlackOffset;
+
+        // Calculate tension level based on the current position of the shackle
+        var new_tension_level = (lock_shackle.y - top_bound) / (bottom_bound - top_bound);
+
+        // Clamp the new_tension_level between 0 and 1 to ensure it doesn't go out of range
+        new_tension_level = Math.abs(Math.max(0.0, Math.min(1.0, new_tension_level)) - 1.0);
+
+        if (new_tension_level != tension_level) {
+          tension_level = new_tension_level
+          tensionBox.clear().fillStyle(getColorFromFloat(tension_level), 1).fillRect(655, 660, 20, 20);
+        }
+
+        if (cursors.left.isDown) {
+          moved = true
+          if (tension_level > 0.3 && tension_level < 0.8 && current_mark == lock_numbers.first_number_sticky) {
+            degree_change -= rotationSpeed * delta * 0.2
+          } else if (tension_level > 0.75) {
+            var modifier = 1
+            if (current_mark == lock_numbers.bad_third_number) {
+              modifier = 0.4
+              dchange = (rotationSpeed * delta * modifier)
+              new_angle = lock_dial.angle - dchange
+              var new_mark = closestMark(new_angle)
+              if (new_mark == current_mark) {
+                degree_change -= rotationSpeed * delta * modifier
+              } else {
+                moved = false
+              }
+            } else if (current_mark == lock_numbers.third_number) {
+              modifier = 1.8
+              dchange = (rotationSpeed * delta * modifier)
+              new_angle = lock_dial.angle - dchange
+              var new_mark = closestMark(new_angle)
+              if (new_mark == current_mark) {
+                degree_change -= rotationSpeed * delta * modifier
+              } else {
+                moved = false
+              }
+            } else if (current_mark == lock_numbers.guess_number1 || current_mark == lock_numbers.guess_number2) {
+              dchange = (rotationSpeed * delta * modifier)
+              new_angle = lock_dial.angle - dchange
+              var new_mark = closestMark(new_angle)
+              if (new_mark == current_mark) {
+                degree_change -= rotationSpeed * delta * modifier
+              } else {
+                moved = false
+              }
+            } else {
+              dchange = (rotationSpeed * delta * modifier)
+              new_angle = lock_dial.angle - dchange
+              var new_mark = closestHalfMark(new_angle)
+              if (new_mark == current_HalfMark) {
+                degree_change -= rotationSpeed * delta * modifier
+              } else {
+                moved = false
+              }
+            }
+          } else {
+            degree_change -= rotationSpeed * delta
+          }
+        } else if (cursors.right.isDown) {
+          moved = true
+          if (tension_level > 0.3 && tension_level < 0.8 && current_mark == lock_numbers.first_number_sticky) {
+            degree_change += rotationSpeed * delta * 0.2
+          } else if (tension_level > 0.75) {
+            var modifier = 1
+            if (current_mark == lock_numbers.bad_third_number) {
+              modifier = 0.4
+              dchange = (rotationSpeed * delta * modifier)
+              new_angle = lock_dial.angle + dchange
+              var new_mark = closestMark(new_angle)
+              if (new_mark == current_mark) {
+                degree_change += rotationSpeed * delta * modifier
+              } else {
+                moved = false
+              }
+            } else if (current_mark == lock_numbers.third_number) {
+              modifier = 1.8
+              dchange = (rotationSpeed * delta * modifier)
+              new_angle = lock_dial.angle + dchange
+              var new_mark = closestMark(new_angle)
+              if (new_mark == current_mark) {
+                degree_change += rotationSpeed * delta * modifier
+              } else {
+                moved = false
+              }
+            } else if (current_mark == lock_numbers.guess_number1 || current_mark == lock_numbers.guess_number2) {
+              dchange = (rotationSpeed * delta * modifier)
+              new_angle = lock_dial.angle + dchange
+              var new_mark = closestMark(new_angle)
+              if (new_mark == current_mark) {
+                degree_change += rotationSpeed * delta * modifier
+              } else {
+                moved = false
+              }
+            } else {
+              dchange = (rotationSpeed * delta * modifier)
+              new_angle = lock_dial.angle + dchange
+              var new_mark = closestHalfMark(new_angle)
+              if (new_mark == current_HalfMark) {
+                degree_change += rotationSpeed * delta * modifier
+              } else {
+                moved = false
+              }
+            }
+          } else {
+            degree_change += rotationSpeed * delta
+          }
+        }
+
+        if (moved) {
+          lock_dial.angle += degree_change
+          if (stage == 0) {
+            if (cursors.right.isDown) {
+              if (current_mark == lock_numbers.first_number) {
+                first_set = true
+              } else {
+                first_set = false
+              }
+            } else {
+              if (cursors.left.isDown && first_set) {
+                stage = 1
+              } else {
+                statusBox.clear().fillStyle(0xFF0000, 1).fillRect(530, 660, 20, 20); // Red color for locked status
+                stage = -1
+              }
+            }
+          }
+          if (stage == 1) {
+            if (cursors.left.isDown) {
+              degrees_traversed += degree_change
+              if (Math.abs(degrees_traversed) >= 720) {
+                statusBox.clear().fillStyle(0xFF0000, 1).fillRect(530, 660, 20, 20); // Red color for locked status
+                stage = -1
+              } else if (Math.abs(degrees_traversed) >= 360) {
+                first_passed = true
+              }
+              if (first_passed) {
+                if (current_mark == lock_numbers.second_number) {
+                  second_set = true
+                } else {
+                  second_set = false
+                }
+              }
+            } else {
+              if (cursors.right.isDown && second_set) {
+                stage = 2
+                degrees_traversed = 0
+              } else {
+                statusBox.clear().fillStyle(0xFF0000, 1).fillRect(530, 660, 20, 20); // Red color for locked status
+                stage = -1
+              }
+            }
+          } else if (stage == 2 || stage == 3) {
+            degrees_traversed += degree_change
+            if (Math.abs(degrees_traversed) <= 360) {
+              if (cursors.right.isDown) {
+                if (current_mark == lock_numbers.third_number) {
+                  stage = 3
+                } else {
+                  stage = 2
+                }
+              } else {
+                statusBox.clear().fillStyle(0xFF0000, 1).fillRect(530, 660, 20, 20); // Red color for locked status
+                stage = -1
+              }
+            } else {
+              statusBox.clear().fillStyle(0xFF0000, 1).fillRect(530, 660, 20, 20); // Red color for locked status
+              stage = -1
+            }
+          }
+        }
+      }
+    }
+  </script>
+</body>
+
+</html>

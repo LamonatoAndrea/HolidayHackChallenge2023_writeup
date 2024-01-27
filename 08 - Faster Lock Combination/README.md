@@ -32,3 +32,20 @@ To obtain the second digit is used the below table:
 Eliminating those being 2 digits apart from the third digits, below the list of attempts:
 * $n1 = 18$, $`n2 = \{4, 8, 20, 24, 32, 34, 36, 40\}`$, $n3 = 14$
 * $n1 = 18$, $`n2 = \{4, 8, 12, 16, 20, 24, 40\}`$, $n3 = 34$
+
+#### Going ballistic
+I swear I tried, but I just wasn’t able to get the lock open, so I started analyzing the JS code, eventually discovering the variable lock_numbers which confirmed I had the right digits:
+```javascript
+{
+	"bad_third_number": 34,
+	"first_number": 18,
+	"first_number_sticky": 13,
+	"guess_number1": 7,
+	"guess_number2": 4,
+	"second_number": 4,
+	"third_number": 14
+}
+```
+And then I found the function `moveLockIntoUnlockedPosition()` - which just opened the lock with 0
+effort - still it was great to refresh some lockpicking knowledge 🙂
+
