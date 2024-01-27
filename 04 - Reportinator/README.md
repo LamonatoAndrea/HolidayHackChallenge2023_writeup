@@ -1,5 +1,5 @@
 # Writeup for The 2023 SANS Holiday Hack Challenge: A Holiday Odyssey \| Featuring 6: Geese A-Lei'ing!
-## Snowball Fight
+## Reportinator
 Difficulty: :christmas_tree::christmas_tree:  
 Noel Boetie used ChatNPT to write a pentest report. Go to Christmas Island and help him clean it up.
 
