@@ -19,3 +19,15 @@ A little more math gives us the remainder to watch out for $r = n1 / 4 = 18 / 4 
 Elegible third digits are the ones for which remainder matches $r$, the one obtaining by divinding $n1$ by $4$:
 * $14$
 * $34$ 
+
+By applying the tension and further verifying the two eligible numbers, $14$ looked more promising being the loosest, but I also kept $34$ just in case.
+
+#### The second digit
+To obtain the second digit is used the below table:
+| | | | | | | | | |
+| --------------------------- | ----------- | ------------ | ------------- | ------------- | ------------- | 
+| Row 1 - $Remainder + 2 = 4$ | $4 + 0 = 4$ | $4 + 8 = 12$ | $4 + 16 = 20$ | $4 + 24 = 34$ | $4 + 32 = 36$ |
+| Row 2 - $Remainder + 6 = 8$ | $8 + 0 = 8$ | $8 + 8 = 16$ | $8 + 16 = 24$ | $8 + 24 = 32$ | $8 + 32 = 40$ | 
+Eliminating those being 2 digits apart from the third digits, below the list of attempts:
+* $n1 = 18, n2 = {4, 8, 20, 24, 32, 34, 36, 40}, n3 = 14$
+* $n1 = 18, n2 = {4, 8, 12, 16, 20, 24, 40}, n3 = 34$
