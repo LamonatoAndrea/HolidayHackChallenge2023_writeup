@@ -30,5 +30,5 @@ To obtain the second digit is used the below table:
 | Row 2 - $Remainder + 6 = 8$ | $8 + 0 = 8$ | $8 + 8 = 16$ | $8 + 16 = 24$ | $8 + 24 = 32$ | $8 + 32 = 40$ | 
 
 Eliminating those being 2 digits apart from the third digits, below the list of attempts:
-* $n1 = 18$, $n2 = \{4, 8, 20, 24, 32, 34, 36, 40\}$, $n3 = 14$
-* $n1 = 18$, $n2 = \{4, 8, 12, 16, 20, 24, 40\}$, $n3 = 34$
+* $n1 = 18$, $`n2 = \{4, 8, 20, 24, 32, 34, 36, 40\}`$, $n3 = 14$
+* $n1 = 18$, $`n2 = \{4, 8, 12, 16, 20, 24, 40\}`$, $n3 = 34$
