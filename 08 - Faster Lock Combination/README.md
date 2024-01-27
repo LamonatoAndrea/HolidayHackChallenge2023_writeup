@@ -11,7 +11,7 @@ By applying some tension so as to have the “Tension Status” indicator lookin
 
 #### The third digit
 A little more math gives us the remainder to watch out for $r = n1 / 4 = 18 / 4 = 4 R 2$. Based on the guess number, we can write down a table such as the following:
-| | | | | | | | | |
+|  |  |  |  |  |  |  |  |  |
 | ------------ | --- | ------------- | ------------- | ------------- | --- | ------------- | ------------- | ------------- |
 | GUESS NUMBER | $4$ | $4 + 10 = 14$ | $4 + 20 = 24$ | $4 + 30 = 34$ | $7$ | $7 + 10 = 17$ | $7 + 20 = 27$ | $7 + 30 = 37$ |
 | REMAINDER | $4 / 4 = 1 R 0$ | $14 / 4 = 3 R 2$ | $24 / 4 = 6 R 0$ | $34 / 4 = 8 R 2$ | $7 / 4 = 1 R 3$ | $17 / 4 = 4 R 1$ | $27 / 4 = 6 R 3$ | $37 / 4 = 9 R 1$ |
@@ -24,7 +24,7 @@ By applying the tension and further verifying the two eligible numbers, $14$ loo
 
 #### The second digit
 To obtain the second digit is used the below table:
-| | | | | | | | | |
+|  |  |  |  |  |  |  |  |  |
 | --------------------------- | ----------- | ------------ | ------------- | ------------- | ------------- | 
 | Row 1 - $Remainder + 2 = 4$ | $4 + 0 = 4$ | $4 + 8 = 12$ | $4 + 16 = 20$ | $4 + 24 = 34$ | $4 + 32 = 36$ |
 | Row 2 - $Remainder + 6 = 8$ | $8 + 0 = 8$ | $8 + 8 = 16$ | $8 + 16 = 24$ | $8 + 24 = 32$ | $8 + 32 = 40$ | 
