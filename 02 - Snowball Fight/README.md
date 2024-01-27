@@ -43,3 +43,6 @@ Using the console in dev tools and selecting the right context it is possible to
 * `player.health = -1`, causing the player to never die (a.k.a. Vengeance of un-TheDead)
 
 Then it’s just about playing and winning
+
+#### Fun fact
+If you go directly to the URL https://hhc23-snowball.holidayhackchallenge.com/, it will let you play with a random user - also not your own - it was fairly nice to play as other people.
