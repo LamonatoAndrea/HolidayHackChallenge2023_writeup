@@ -43,3 +43,6 @@ for i in range(0, int('111111111', 2) + 1):
 		print("SOLUTION IS {}".format(bin_i))
 		exit()
 ```
+
+### Thanks to @mrjasinski
+Thank you for pointing out that the link was fixed 🙂
