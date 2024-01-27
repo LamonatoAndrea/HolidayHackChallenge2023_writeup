@@ -34,7 +34,7 @@ function buildAndGotoUrl(roomId, gamet, roomt) {
 }
 ```
 Using the debugger in dev tools, the URL can be tweaked before it gets called. I found that a reliable combination is with `roomType = public` and `singlePlayer = true`:
-	> https://hhc23-snowball.holidayhackchallenge.com/room/?username=TheDead91&roomId=237a35ee7&roomType=public&gameType=co-op&id=ec59bb01-6112-4b8f-8705-34be3b49fd4a&dna=ATATATTAATATATATATATTAATATATATATCGTAGCTAATATATATATATATGCATATATATATATGCCGATATATCGATATATATATATTACGATATATATATATATGCATATGCGC&singlePlayer=true
+> https://hhc23-snowball.holidayhackchallenge.com/room/?username=TheDead91&roomId=237a35ee7&roomType=public&gameType=co-op&id=ec59bb01-6112-4b8f-8705-34be3b49fd4a&dna=ATATATTAATATATATATATTAATATATATATCGTAGCTAATATATATATATATGCATATATATATATGCCGATATATCGATATATATATATTACGATATATATATATATGCATATGCGC&singlePlayer=true
 In this instance the game spawns a dwarf helper and lets you play solo.
 Analyzing the JS code in the page, it is possible to identify a section with the comment // ==========
 player stuff where player parameters are set, especially player.throwDelay = 300 and player.health
