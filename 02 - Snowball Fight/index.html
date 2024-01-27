@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multiplayer Snowball Hero</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%2210 0 100 100%22><text y=%22.90em%22 font-size=%2290%22>❄️</text></svg>">
+  <script src="jquery.min.js"></script>
+  <script src="phaser.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden; /* This line hides the scrollbar */
+    }
+    html {
+      background-color: #181A18;
+    }
+  </style>
+</head>
+<body>
+
+<script>
+  var nms = ['aboard', 'above', 'acres', 'act', 'active', 'actual', 'add', 'adult', 'advice', 'afraid', 'ago', 'ahead', 'air', 'alike', 'all', 'almost', 'along', 'also', 'am', 'amount', 'angle', 'animal', 'ants', 'apple', 'area', 'army', 'arrive', 'art', 'as', 'ask', 'at', 'atomic', 'attack', 'author', 'avoid', 'away', 'back', 'badly', 'bank', 'bare', 'barn', 'basis', 'bat', 'be', 'bear', 'became', 'become', 'bee', 'before', 'being', 'bell', 'below', 'bend', 'bent', 'best', 'better', 'beyond', 'bigger', 'bill', 'birth', 'bit', 'black', 'blind', 'blood', 'blue', 'boat', 'bone', 'border', 'both', 'bottom', 'bow', 'box', 'brain', 'brass', 'bread', 'breeze', 'bridge', 'bright', 'broad', 'broken', 'brush', 'build', 'built', 'burn', 'bus', 'but', 'buy', 'cabin', 'cake', 'calm', 'camera', 'can', 'cannot', 'carbon', 'care', 'carry', 'cast', 'cat', 'cattle', 'cause', 'cell', 'center', 'chair', 'chance', 'charge', 'check', 'child', 'choice', 'chose', 'church', 'circus', 'city', 'clay', 'clear', 'clock', 'cloth', 'club', 'coal', 'coat', 'cold', 'color', 'come', 'coming', 'common', 'cook', 'cool', 'copy', 'corner', 'cotton', 'count', 'couple', 'course', 'cover', 'cowboy', 'cream', 'crop', 'crowd', 'cup', 'damage', 'danger', 'dark', 'date', 'dawn', 'dead', 'dear', 'decide', 'deep', 'deer', 'degree', 'depth', 'desert', 'desk', 'die', 'dig', 'direct', 'dirty', 'divide', 'do', 'does', 'doing', 'dollar', 'donkey', 'dot', 'doubt', 'dozen', 'drawn', 'dress', 'dried', 'drive', 'driver', 'drop', 'drove', 'duck', 'dug', 'during', 'duty', 'eager', 'earn', 'easier', 'east', 'eat', 'edge', 'effect', 'egg', 'either', 'else', 'end', 'energy', 'enough', 'entire', 'every', 'exact', 'exist', 'eye', 'facing', 'factor', 'failed', 'fairly', 'fallen', 'family', 'far', 'farmer', 'fast', 'faster', 'father', 'fear', 'feed', 'feet', 'fellow', 'fence', 'fewer', 'fierce', 'fifth', 'fight', 'figure', 'film', 'fine', 'finger', 'fire', 'firm', 'fish', 'fix', 'flame', 'flew', 'flight', 'floor', 'flower', 'fog', 'follow', 'foot', 'for', 'forget', 'former', 'forth', 'found', 'fourth', 'frame', 'fresh', 'frog', 'front', 'fruit', 'full', 'fun', 'funny', 'future', 'game', 'garden', 'gather', 'gentle', 'get', 'giant', 'girl', 'given', 'glad', 'globe', 'goes', 'golden', 'good', 'got', 'graph', 'great', 'green', 'ground', 'grow', 'growth', 'guess', 'gulf', 'habit', 'hair', 'hand', 'happen', 'harbor', 'harder', 'has', 'have', 'hay', 'headed', 'health', 'heat', 'height', 'hello', 'herd', 'hide', 'higher', 'him', 'his', 'hit', 'hole', 'home', 'hope', 'horse', 'hot', 'house', 'human', 'hung', 'hunt', 'hurt', 'ice', 'ill', 'in', 'income', 'indeed', 'inside', 'is', 'it', 'itself', 'jar', 'job', 'joined', 'joy', 'jump', 'just', 'kept', 'kids', 'kind', 'knew', 'know', 'known', 'labor', 'lady', 'lake', 'land', 'large', 'late', 'laugh', 'lay', 'lead', 'leaf', 'least', 'leave', 'led', 'leg', 'lesson', 'letter', 'life', 'light', 'likely', 'line', 'lips', 'list', 'little', 'living', 'local', 'lonely', 'longer', 'loose', 'loss', 'lot', 'love', 'low', 'luck', 'lunch', 'lying', 'made', 'magnet', 'main', 'major', 'making', 'map', 'market', 'mass', 'master', 'may', 'me', 'mean', 'meant', 'meat', 'meet', 'member', 'men', 'merely', 'metal', 'mice', 'might', 'mile', 'milk', 'mind', 'mirror', 'mix', 'model', 'money', 'month', 'moon', 'mostly', 'motion', 'mouth', 'moving', 'muscle', 'my', 'name', 'nature', 'nearby', 'needed', 'needs', 'never', 'news', 'next', 'night', 'no', 'nodded', 'none', 'nor', 'nose', 'note', 'noun', 'number', 'nuts', 'ocean', 'off', 'office', 'old', 'oldest', 'once', 'only', 'open', 'orange', 'order', 'origin', 'other', 'our', 'out', 'over', 'owner', 'pack', 'page', 'pain', 'pair', 'pale', 'paper', 'park', 'parts', 'pass', 'past', 'peace', 'pencil', 'per', 'person', 'pet', 'pick', 'piece', 'pile', 'pine', 'pipe', 'place', 'plan', 'planet', 'plates', 'plural', 'pocket', 'poet', 'point', 'police', 'pony', 'poor', 'port', 'pot', 'pound', 'powder', 'press', 'pretty', 'pride', 'prize', 'proper', 'proud', 'pull', 'pure', 'put', 'rabbit', 'radio', 'rain', 'ran', 'range', 'rate', 'raw', 'reach', 'reader', 'real', 'rear', 'recall', 'recent', 'red', 'remain', 'repeat', 'rest', 'return', 'rhyme', 'rice', 'ride', 'right', 'rise', 'river', 'roar', 'rocket', 'rod', 'roof', 'root', 'rose', 'round', 'row', 'rubber', 'ruler', 'sad', 'safe', 'said', 'sale', 'salt', 'sand', 'sat', 'saved', 'say', 'scared', 'school', 'score', 'sea', 'season', 'second', 'seed', 'seems', 'seldom', 'send', 'sent', 'shadow', 'share', 'she', 'sheet', 'shells', 'shine', 'ship', 'shoe', 'shop', 'short', 'shot', 'show', 'shut', 'sides', 'sign', 'silk', 'silver', 'simple', 'simply', 'sing', 'sink', 'sit', 'size', 'skin', 'slabs', 'sleep', 'slide', 'slow', 'small', 'smile', 'smooth', 'snow', 'soap', 'softly', 'solar', 'some', 'song', 'sort', 'source', 'speak', 'speech', 'spell', 'spent', 'spin', 'spite', 'spoken', 'spread', 'square', 'stairs', 'stared', 'state', 'steady', 'steel', 'stems', 'stiff', 'stock', 'stone', 'stop', 'store', 'story', 'stream', 'strike', 'strip', 'stuck', 'such', 'sum', 'sun', 'supper', 'sure', 'swam', 'swept', 'swung', 'symbol', 'table', 'take', 'tales', 'tall', 'tape', 'taste', 'tax', 'teach', 'team', 'teeth', 'tent', 'than', 'that', 'them', 'then', 'there', 'these', 'thick', 'thing', 'third', 'this', 'thou', 'thread', 'threw', 'throw', 'thumb', 'thy', 'tie', 'time', 'tiny', 'tired', 'to', 'today', 'told', 'tone', 'took', 'top', 'torn', 'touch', 'tower', 'toy', 'track', 'train', 'trap', 'trick', 'trip', 'truck', 'truth', 'tube', 'turn', 'twenty', 'two', 'under', 'union', 'unless', 'upon', 'upward', 'use', 'using', 'vapor', 'view', 'visit', 'voice', 'vote', 'voyage', 'wait', 'wall', 'war', 'warn', 'wash', 'watch', 'wave', 'we', 'wealth', 'weigh', 'went', 'west', 'wet', 'what', 'wheat', 'when', 'where', 'while', 'who', 'whom', 'why', 'widely', 'wild', 'wind', 'wing', 'wire', 'wish', 'within', 'wolf', 'won', 'wooden', 'word', 'work', 'world', 'worry', 'worth', 'writer', 'wrote', 'year', 'yes', 'yet', 'young', 'your', 'youth', 'zoo']
+  var vsSanta = true;
+  var gameType = "co-op"
+  var TOGGLE_BUTTON, graphics;
+  var header1;
+  var header2;
+  var JOIN_RANDOM_BUTTON;
+  var CREATE_ROOM_BUTTON;
+  var JOIN_ROOM_BUTTON;
+  var printText;
+  var join_error;
+  var username = "";
+  var resourceId = "";
+  var config;
+  var game;
+  var playerAvatar;
+  var screenCenterX, screenCenterY;
+  var audiotoggle;
+  var bgmusic;
+  function genRoomId() {
+    return parseInt((Math.random() * (9999999999 - 100000000) + 100000000).toString().split('.')[0]).toString(16);
+  }
+  function GetRooms(callback) {
+    $.get( "discover", function( data ) {
+        console.log(data) 
+        return callback(data)
+    }, "json");
+  }
+    function shuffle(array) {
+        let currentIndex = array.length,  randomIndex;
+        // While there remain elements to shuffle.
+        while (currentIndex > 0) {
+            // Pick a remaining element.
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            // And swap it with the current element.
+            [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex], array[currentIndex]];
+        }
+        return array;
+    }
+    function getRandomIndex(arr) {
+        return Math.floor(Math.random() * arr.length);
+    }
+  function buildAndGotoUrl(roomId, gamet, roomt) {
+    var new_url = window.location.href.split('/').slice(0, -1).join('/') + '/room/'
+    new_url += "?username=" + username 
+    new_url += "&roomId=" + roomId
+    new_url += "&roomType=" + roomt
+    new_url += "&gameType=" + gamet
+    if (resourceId && resourceId.length) {
+        new_url += "&id=" + resourceId
+    }
+    if (playerAvatar && playerAvatar.length) {
+        new_url += "&dna=" + playerAvatar
+    }
+    window.location.href = new_url
+  }
+  function JoinRoomOrCreate(gameAction, room_code=genRoomId()) {
+    if (gameAction === "joinPrivate" || gameAction === 'create') {
+        //var room_code = textObject.getText()
+        console.log(room_code)
+        if (gameAction === 'create') {
+            room_code = genRoomId()
+        } else if (!room_code.trim().length) {
+            join_error.showMessage("Invalid Room Code!");
+            return
+        }
+        $.get( "discoverc?roomId="+room_code, function( data ) {
+            if ((data.isvalidroom === true && gameAction === "joinPrivate") || (data.isvalidroom === false && gameAction === "create")) {
+                if (gameAction === "joinPrivate") {
+                    gameType = data.gameType
+                }
+                buildAndGotoUrl(room_code, gameType, "private")
+            } else {
+                join_error.showMessage("Room does not exist, is full or is not multiplayer!");
+            }
+        }, "json")
+    } else if (gameAction === 'joinPublic') {
+        GetRooms(function(data){
+            if (data && data.rooms && data.rooms.length) {
+                const coOpRooms = shuffle(data.rooms.filter(room => room.gameType === "co-op"));
+                const pvpRooms = shuffle(data.rooms.filter(room => room.gameType === "free-for-all"));
+                if (vsSanta && coOpRooms.length) {
+                    const randomCoOpRoom = coOpRooms[getRandomIndex(coOpRooms)];
+                    buildAndGotoUrl(randomCoOpRoom.roomKey, randomCoOpRoom.gameType, "public")
+                } else if (!vsSanta && pvpRooms.length) {
+                    const randomPvpRoom = pvpRooms[getRandomIndex(pvpRooms)];
+                    buildAndGotoUrl(randomPvpRoom.roomKey, randomPvpRoom.gameType, "public")
+                } else {
+                    buildAndGotoUrl(genRoomId(), gameType, "public")
+                }
+            } else {
+                buildAndGotoUrl(genRoomId(), gameType, "public")
+            }
+        })
+    }
+  }
+
+  class Demo extends Phaser.Scene {
+      constructor() {
+          super({
+              key: 'examples'
+          })
+      }
+
+      preload() {
+        this.load.audio('backgroundmusic', '../elf_royale.mp3');
+
+        this.load.scenePlugin({
+            key: 'rexuiplugin',
+            url: 'rexuiplugin.min.js',
+            sceneKey: 'rexUI'
+        });
+        this.load.spritesheet('audiotoggle', 'images/audiotoggle.png', { 
+            frameWidth: 80, 
+            frameHeight: 80
+        });
+          this.load.plugin('rexbbcodetextplugin', 'rexbbcodetextplugin.min.js', true);
+          this.load.plugin('rextexteditplugin', 'rextexteditplugin.min.js', true)
+          this.load.image('homebg', 'images/background.png')
+          this.load.image('gradient', 'images/gradient.jpeg')
+      }
+
+      create() {
+          screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
+          screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
+          var audioState = localStorage.getItem('audioState');
+
+            // Default to playing if no state is stored
+            var isAudioPlaying = audioState !== 'paused';
+
+            audiotoggle = this.add.sprite(screenCenterX*2, 0, 'audiotoggle');
+            audiotoggle.setOrigin(1,0)
+            audiotoggle.setScale(0.4)
+            audiotoggle.setInteractive()
+            bgmusic = this.sound.add('backgroundmusic')
+            bgmusic.setRate(0.9)
+            bgmusic.loop = true;
+            bgmusic.setVolume(0.05)
+
+            if (isAudioPlaying) {
+                bgmusic.play();
+                audiotoggle.setFrame(0);
+            } else {
+                audiotoggle.setFrame(1);
+            }
+
+            audiotoggle.on('pointerdown', function() {
+                if (bgmusic.isPlaying) {
+                    bgmusic.pause()
+                    audiotoggle.setFrame(1)
+                    localStorage.setItem('audioState', 'paused');
+                } else {
+                    bgmusic.play()
+                    audiotoggle.setFrame(0)
+                    localStorage.setItem('audioState', 'playing');
+                }
+            })
+            audiotoggle.setDepth(9)
+          this.add.image(0, 0, 'gradient').setOrigin(0,0)
+          let bg = this.add.image(0, 0, 'homebg').setOrigin(0,0)
+          bg.setAlpha(0.4)
+          header1 = this.add.text(screenCenterX, 100, "Santa's", { fontSize: '32px', fill: '#fff', fontFamily: 'monospace', stroke: '#000000',strokeThickness: 6 }).setOrigin(0.5);
+          header2 = this.add.text(screenCenterX, 150, "SNOWBALL HERO", { fontSize: '64px', fill: '#fff', fontFamily: 'monospace', stroke: '#000000',strokeThickness: 6 }).setOrigin(0.5);
+
+          JOIN_RANDOM_BUTTON = this.add.text(screenCenterX, 300, "1. RANDOM MATCH MAKING", { fontSize: '40px', fill: '#0f0', fontFamily: 'monospace', stroke: '#000000',strokeThickness: 6 }).setOrigin(0.5);
+          JOIN_RANDOM_BUTTON.setInteractive();
+          JOIN_RANDOM_BUTTON.on('pointerover', () => { JOIN_RANDOM_BUTTON.setStyle({ fill: '#ff0'})  });
+          JOIN_RANDOM_BUTTON.on('pointerout', () => { JOIN_RANDOM_BUTTON.setStyle({ fill: '#0f0'})  });
+          JOIN_RANDOM_BUTTON.on('pointerdown', () => { JOIN_RANDOM_BUTTON.setStyle({ fill: '#0ff'})  });
+          JOIN_RANDOM_BUTTON.on('pointerup', () => { 
+              JOIN_RANDOM_BUTTON.setStyle({ fill: '#0f0'});
+              JoinRoomOrCreate('joinPublic')
+          });
+          CREATE_ROOM_BUTTON = this.add.text(screenCenterX, 350, "2. CREATE PRIVATE ROOM", { fontSize: '40px', fill: '#0f0', fontFamily: 'monospace', stroke: '#000000',strokeThickness: 6 }).setOrigin(0.5);
+          CREATE_ROOM_BUTTON.setInteractive();
+          CREATE_ROOM_BUTTON.on('pointerover', () => { CREATE_ROOM_BUTTON.setStyle({ fill: '#ff0'})  });
+          CREATE_ROOM_BUTTON.on('pointerout', () => { CREATE_ROOM_BUTTON.setStyle({ fill: '#0f0'})  });
+          CREATE_ROOM_BUTTON.on('pointerdown', () => { CREATE_ROOM_BUTTON.setStyle({ fill: '#0ff'})  });
+          CREATE_ROOM_BUTTON.on('pointerup', () => {
+                JoinRoomOrCreate('create')
+          });
+          JOIN_ROOM_BUTTON = this.add.text(screenCenterX, 400,   "3. JOIN PRIVATE ROOM  ", { fontSize: '40px', fill: '#0f0', fontFamily: 'monospace', stroke: '#000000',strokeThickness: 6 }).setOrigin(0.5);
+          JOIN_ROOM_BUTTON.setInteractive();
+          JOIN_ROOM_BUTTON.on('pointerover', () => { JOIN_ROOM_BUTTON.setStyle({ fill: '#ff0'})  });
+          JOIN_ROOM_BUTTON.on('pointerout', () => { JOIN_ROOM_BUTTON.setStyle({ fill: '#0f0'})  });
+          JOIN_ROOM_BUTTON.on('pointerdown', () => { JOIN_ROOM_BUTTON.setStyle({ fill: '#0ff'})  });
+          JOIN_ROOM_BUTTON.on('pointerup', () => {
+              JOIN_ROOM_BUTTON.setStyle({ fill: '#0f0'});
+              printText.setVisible(true);
+          });
+          printText = this.add.rexBBCodeText(screenCenterX, 500, 'Enter Room Code Here', {
+              color: '#404040',
+              fontSize: '32px',
+              fixedWidth: 470,
+              fixedHeight: 50,
+              backgroundColor: '#ccf5ff',
+              valign: 'center',
+              fontFamily: 'monospace',
+          })
+          .setOrigin(0.5)
+          .setInteractive()
+          .on('pointerdown', function () {
+              var config = {
+                  onOpen: function (textObject) {
+
+                  },
+                  onTextChanged: function (textObject, text) {
+                      textObject.text = text;
+                  },
+                  onClose: function (textObject) {
+                      var room_code = textObject.getText()
+                      printText.setVisible(false);
+                      JoinRoomOrCreate('joinPrivate', room_code)
+                  },
+                  selectAll: true,
+              }
+              this.plugins.get('rextexteditplugin').edit(printText, config);
+          }, this);
+          printText.setVisible(false)
+          join_error = this.rexUI.add.toast({
+              x: screenCenterX,
+              y: 500,
+              background: this.rexUI.add.roundRectangle(0, 0, 2, 2, 20, "#fff"),
+              text: this.add.text(0, 0, '', {
+                  fontSize: '24px'
+              }),
+              space: {
+                  left: 20,
+                  right: 20,
+                  top: 20,
+                  bottom: 20,
+              },
+              duration: {
+                  in: 200,
+                  hold: 1700,
+                  out: 200,
+              },
+          }).setTransitOutCallback(function(toast, duration) {
+              printText.setText('Enter Room Code Here');
+          });
+        graphics = this.add.graphics({ lineStyle: { width: 4, color: 0xffffff }, fillStyle: { color: 0x000000 } });
+        graphics.fillRoundedRect(screenCenterX - 125, 200, 250, 50, 15);  // Draw a rounded rectangle
+        graphics.strokeRoundedRect(screenCenterX - 125, 200, 250, 50, 15);  // Stroke a rounded rectangle
+        graphics.setInteractive(new Phaser.Geom.Rectangle(screenCenterX - 125, 200, 250, 50), Phaser.Geom.Rectangle.Contains);
+
+        TOGGLE_BUTTON = this.add.text(screenCenterX-225, 225, vsSanta ? "MODE:   ◀ VS SANTA ▶  " : "MODE:  ◀ VS PLAYERS ▶", { fontSize: '28px', fill: '#0f0', fontFamily: 'monospace', stroke: '#000000',strokeThickness: 6 }).setOrigin(0.5);
+        TOGGLE_BUTTON.setInteractive();
+        TOGGLE_BUTTON.setOrigin(0,0.5)
+
+        var updateColor = () => {
+            var color = vsSanta ? 0x000000 : 0x444444;
+            graphics.clear();
+            graphics.lineStyle(4, 0xffffff);
+            graphics.fillStyle(color);
+            graphics.fillRoundedRect(screenCenterX - 125, 200, 250, 50, 15);
+            graphics.strokeRoundedRect(screenCenterX - 125, 200, 250, 50, 15);
+            TOGGLE_BUTTON.setStyle({ fill: vsSanta ? '#0f0' : '#f00' });
+        };
+
+        var toggleColor = () => {
+            vsSanta = !vsSanta;
+            if (vsSanta) {
+                gameType = "co-op"
+            } else {
+                gameType = "free-for-all"
+            }
+            updateColor();
+            TOGGLE_BUTTON.setText(vsSanta ? "MODE:   ◀ VS SANTA ▶  " : "MODE:  ◀ VS PLAYERS ▶");
+        };
+
+        var hoverColor = () => {
+            graphics.clear();
+            graphics.lineStyle(4, 0xffffff);
+            graphics.fillStyle(0x666666);
+            graphics.fillRoundedRect(screenCenterX - 125, 200, 250, 50, 15);
+            graphics.strokeRoundedRect(screenCenterX - 125, 200, 250, 50, 15);
+        };
+
+        var unhoverColor = () => {
+            updateColor();
+        };
+
+        graphics.on('pointerup', toggleColor);
+        TOGGLE_BUTTON.on('pointerup', toggleColor);
+
+        graphics.on('pointerover', hoverColor);  // Hover effect
+        graphics.on('pointerout', unhoverColor);  // Remove hover effect
+        TOGGLE_BUTTON.on('pointerover', hoverColor);  // Hover effect
+        TOGGLE_BUTTON.on('pointerout', unhoverColor);
+      }
+
+      update() {
+          
+      }
+  }
+  $( document ).ready(function() {
+      var url = new URL(window.location.href);
+      var u = url.searchParams.get("username");
+      var id = url.searchParams.get("id");
+      var dna = url.searchParams.get("dna");
+      if (dna && dna.length) { 
+        playerAvatar = dna
+      }
+      if (id && id.length) {
+        resourceId = id
+      }
+      if (u && u.length) {
+        username = u;
+      } else {
+        username = nms[ Math.floor(Math.random() * nms.length) ] + (Math.random() + 1).toString(36).substring(10)
+      }
+      config = {
+          type: Phaser.AUTO,
+          parent: 'phaser-example',
+          width: 900,
+          height: 650,
+          backgroundColor: '#4488aa',
+          scale: {
+              mode: Phaser.Scale.FIT,
+              autoCenter: Phaser.Scale.CENTER_BOTH,
+          },
+          dom: {
+              createContainer: true
+          },
+          scene: Demo
+      };
+      game = new Phaser.Game(config);
+  });
+</script>
+</body>
