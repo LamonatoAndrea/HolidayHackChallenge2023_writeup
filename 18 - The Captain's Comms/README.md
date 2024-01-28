@@ -63,9 +63,9 @@ eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJISEMgMjAyMyBDYXB0YWluJ3MgQ29tbXM
 This then allowed to access the content of the peaks in the previous image, revealing the content of the peaks:
 |                                    |                                                      |
 | ---------------------------------- | ---------------------------------------------------- |
-| Just Watch This CW Decoder         | ![08_00_02_dcdCW_cut](imgs/08_00_02_dcdCW_cut.png)   |
-| Just Watch This Audio-Text Decoder | ![08_01_02_dcdNUM_cut](imgs/08_01_02_dcdNUM_cut.png) |
-| Just Watch This RadioFax Decoder   | ![08_02_02_dcdFX_cut](imgs/08_02_02_dcdFX_cut.png)   |
+| Just Watch This CW Decoder         | ![08_00_02_dcdCW_cut](imgs/08_00_01_dcdCW_full.png)   |
+| Just Watch This Audio-Text Decoder | ![08_01_02_dcdNUM_cut](imgs/08_01_01_dcdNUM_full.png) |
+| Just Watch This RadioFax Decoder   | ![08_02_02_dcdFX_cut](imgs/08_02_01_dcdFX_full.png)   |
 
 #### TH3CAPSPR1V4T3F0LD3R - And signing petitions
 The transmission machine required additional privileges, so I went after the captain’s private key. After ignoring the UPPER CASE for too long, I found it at the URL https://captainscomms.com/jwtDefault/keys/TH3CAPSPR1V4T3F0LD3R/capsPrivKey.key:
