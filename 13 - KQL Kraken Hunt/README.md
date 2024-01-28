@@ -16,20 +16,31 @@ Looking for a file that was created on a victim system? Don't forget the FileCre
 
 ### Solution
 #### Onboarding
-*Question*: How many Craftperson Elf's are working from laptops?  
+*Question*: How many Craftperson Elf's are working from laptops? 
+
 *Query*:
 ```kql
 Employees 
 | where role == "Craftsperson Elf" and hostname contains "LAPTOP"
 | summarize count()
 ```
+
 *Answer*: `25`
+
 #### Case #1
-*Question*: How many Craftperson Elf's are working from laptops?  
+*Question*: 
+1) What is the email address of the employee who received this phishing email?
+2) What is the email address that was used to send this spear phishing email?
+3) What was the subject line used in the spear phishing email?
+
 *Query*:
 ```kql
-Employees 
-| where role == "Craftsperson Elf" and hostname contains "LAPTOP"
-| summarize count()
+Email
+| where link contains "http://madelvesnorthpole.org/published/search/MonthlyInvoiceForReindeerFood.docx"
+| project recipient, sender, subject
 ```
-*Answer*: `25`
+
+*Answer*: 
+| recipient | sender | subject |
+| ------------------------------------------------ | ------------------ | --------------------------------- ------------- |
+| alabaster_snowball@santaworkshopgeeseislands.org | cwombley@gmail.com | \[EXTERNAL\] Invoice foir reindeer food past due |
