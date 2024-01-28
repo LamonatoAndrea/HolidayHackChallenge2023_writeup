@@ -30,7 +30,7 @@ Linkedin: https://www.linkedin.com/in/andrea-lamonato/
                    |___/                     
 ```
 
-## [Holiday Hack Orientation](/01%20-%20KringleCon%20Orientation/README.md)
+<!-- ## [Holiday Hack Orientation](/01%20-%20KringleCon%20Orientation/README.md) -->
 
 ## Conclusions
 Hey folks, nice seeing you again! This is like the 5th year in a row, it starts to become a habit. Thanks for this year’s challenge: Jack is back! Obviously AI was used along the whole thing, to write code and
