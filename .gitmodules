@@ -4,3 +4,6 @@
 [submodule "21 - Camera Access/nanosat-mo-framework"]
 	path = 21 - Camera Access/nanosat-mo-framework
 	url = https://github.com/esa/nanosat-mo-framework
+[submodule "23 - BONUS! Fishing Guide/santas_little_helper"]
+	path = 23 - BONUS! Fishing Guide/santas_little_helper
+	url = https://github.com/pollev/santas_little_helper
