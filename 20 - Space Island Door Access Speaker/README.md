@@ -5,10 +5,10 @@ There's a door that needs opening on Space Island! Talk to Jewel Loggins there f
 
 ### Hints
 #### MFA: Something You Are
-*From: Jewel Loggins*
+*From: Jewel Loggins*  
 It seems the Access Speaker is programmed to only accept Wombley's voice. Maybe you could get a sample of his voice and use an AI tool to simulate Wombley speaking the passphrase.
 #### MFA: Something You Know
-*From: Jewel Loggins*
+*From: Jewel Loggins*  
 Wombley says a specific phrase into the Access Speaker. He works in the Research Department and everything they do it super secret, so it may be a challenge to find out what the phrase is. Ribb also works in that department. Try to find and ask him.
 
 ### Solution

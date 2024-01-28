@@ -5,10 +5,10 @@ Go to Steampunk Island and help Ribb Bonbowford audit the Azure AD environment. 
 
 ### Hints
 #### Useful Tools
-*From: Ribb Bonbowford*
+*From: Ribb Bonbowford*  
 It looks like Alabaster's SSH account has a couple of tools installed which might prove useful.
 #### Misconfiguration ADventures
-*From: Alabaster Snowball*
+*From: Alabaster Snowball*  
 Certificates are everywhere. Did you know Active Directory (AD) uses certificates as well? Apparently the service used to manage them can have misconfigurations too.
 
 ### Solution
