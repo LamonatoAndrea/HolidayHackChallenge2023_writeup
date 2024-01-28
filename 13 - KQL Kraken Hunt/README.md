@@ -42,5 +42,5 @@ Email
 
 *Answer*: 
 | recipient | sender | subject |
-| ------------------------------------------------ | ------------------ | --------------------------------- ------------- |
+| ------------------------------------------------ | ------------------ | -------------------------------- |
 | alabaster_snowball@santaworkshopgeeseislands.org | cwombley@gmail.com | \[EXTERNAL\] Invoice foir reindeer food past due |
