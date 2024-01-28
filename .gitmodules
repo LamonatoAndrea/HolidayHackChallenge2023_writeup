@@ -1,3 +1,6 @@
 [submodule "17 - Certificate SSHenanigans/northpole-ssh-certs-fa"]
 	path = 17 - Certificate SSHenanigans/northpole-ssh-certs-fa
 	url = https://github.com/SantaWorkshopGeeseIslandsDevOps/northpole-ssh-certs-fa
+[submodule "21 - Camera Access/nanosat-mo-framework"]
+	path = 21 - Camera Access/nanosat-mo-framework
+	url = https://github.com/esa/nanosat-mo-framework

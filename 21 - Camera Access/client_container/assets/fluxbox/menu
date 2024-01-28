@@ -1,0 +1,3 @@
+[begin] (fluxbox)
+[include] (/opt/fluxbox-menu)
+[end]

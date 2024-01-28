@@ -1,0 +1,15 @@
+2023-11-03 19:36:59.236 esa.mo.helpertools.helpers.HelperMisc loadProperties
+INFO: Loading properties file:/app/sdk/sdk-package/target/nmf-sdk-2.1.0-SNAPSHOT/home/nmf/nanosat-mo-supervisor-sim/provider.properties
+2023-11-03 19:36:59.283 esa.mo.helpertools.helpers.HelperMisc loadProperties
+INFO: Loading properties file:/app/sdk/sdk-package/target/nmf-sdk-2.1.0-SNAPSHOT/home/nmf/nanosat-mo-supervisor-sim/settings.properties
+2023-11-03 19:36:59.284 esa.mo.helpertools.helpers.HelperMisc loadProperties
+INFO: Loading properties file:/app/sdk/sdk-package/target/nmf-sdk-2.1.0-SNAPSHOT/home/nmf/nanosat-mo-supervisor-sim/transport.properties
+2023-11-03 19:36:59.289 esa.mo.com.impl.archive.db.DatabaseBackend <init>
+INFO: DB file writable - defaulting to non-volatile COM Archive
+2023-11-03 19:36:59.329 esa.mo.com.impl.archive.db.DatabaseBackend startDatabaseDriver
+INFO: Attempting to establish a connection to the database:
+ >> jdbc:sqlite:comArchive.db
+2023-11-03 19:36:59.584 org.ccsds.moims.mo.mal.transport.MALTransportFactory newFactory
+INFO: New transport factory registered with classname: esa.mo.mal.transport.tcpip.TCPIPTransportFactoryImpl
+2023-11-03 19:36:59.592 org.ccsds.moims.mo.mal.encoding.MALElementStreamFactory newFactory
+INFO: New encoding factory registered with classname: esa.mo.mal.encoder.binary.fixed.FixedBinaryStreamFactory

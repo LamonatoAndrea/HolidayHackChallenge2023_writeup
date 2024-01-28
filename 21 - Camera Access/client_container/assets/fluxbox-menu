@@ -1,0 +1,55 @@
+# This is an automatically generated file.
+# Please see <file:/usr/share/doc/menu/README> for information.
+
+# to use your own menu, copy this to ~/.fluxbox/menu, then edit
+# ~/.fluxbox/init and change the session.menuFile path to ~/.fluxbox/menu
+
+[begin] (Fluxbox)
+
+# Automatically generated file. Do not edit (see /usr/share/doc/menu/html/index.html)
+   [submenu] (Satellite Tools) {}
+      [exec] (Launch NanoSat MO Base Station Tool) {cd /opt/nmf/consumer-test-tool/ && ./consumer-test-tool.sh} <>
+   [end]
+   [submenu] (Applications) {}
+      [submenu] (Networking) {}
+         [exec] (Wireshark) {/usr/bin/wireshark} <>
+      [end]
+      [submenu] (Office) {}
+         [exec] (Gedit Text Editor) { /usr/bin/gedit } <>
+      [end]
+      [submenu] (Programming) {}
+         [exec] (Tclsh8.6) { x-terminal-emulator -T "Tclsh8.6" -e /usr/bin/tclsh8.6} <>
+         [exec] (TkWish8.6) {x-terminal-emulator -e /usr/bin/wish8.6} <>
+      [end]
+      [submenu] (Shells) {}
+         [exec] (Bash) { x-terminal-emulator -T "Bash" -e /bin/bash --login} <>
+         [exec] (Dash) { x-terminal-emulator -T "Dash" -e /bin/dash -i} <>
+         [exec] (Sh) { x-terminal-emulator -T "Sh" -e /bin/sh --login} <>
+      [end]
+      [submenu] (System) {}
+         [submenu] (Administration) {}
+            [exec] (Editres) {editres} <>
+            [exec] (Xfontsel) {xfontsel} <>
+            [exec] (Xkill) {xkill} <>
+         [end]
+         [submenu] (Monitoring) {}
+            [exec] (Top) { x-terminal-emulator -T "Top" -e /usr/bin/top} <>
+            [exec] (Xev) {x-terminal-emulator -e xev} <>
+         [end]
+      [end]
+   [end]
+   [submenu] (Window Managers) {}
+      [restart] (FluxBox)  {/usr/bin/startfluxbox}
+   [end]
+
+   [config] (Configuration)
+   [submenu] (Styles) {}
+      [stylesdir] (/usr/share/fluxbox/styles)
+      [stylesdir] (~/.fluxbox/styles)
+   [end]
+   [workspaces] (Workspaces)
+   #[reconfig] (Reconfigure)
+   #[restart] (Restart)
+   [exit] (Exit)
+
+[end]
