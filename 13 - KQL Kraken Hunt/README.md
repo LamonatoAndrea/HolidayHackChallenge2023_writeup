@@ -44,3 +44,45 @@ Email
 | recipient | sender | subject |
 | ------------------------------------------------ | ------------------ | -------------------------------- |
 | alabaster_snowball@santaworkshopgeeseislands.org | cwombley@gmail.com | \[EXTERNAL\] Invoice foir reindeer food past due |
+
+#### Case #2
+*Question*: 
+1) What is the role of our victim in the organization?
+2) What is the hostname of the victim's machine?
+3) What is the source IP linked to the victim?
+
+*Query*:
+```kql
+Employees
+| where email_addr == "alabaster_snowball@santaworkshopgeeseislands.org"
+| project role, hostname, ip_addr
+```
+
+*Answer*: 
+| role     | hostname     | ip_addr   | 
+| -------- | ------------ | --------- |
+| Head Elf | Y1US-DESKTOP | 10.10.0.4 |
+
+#### Case #3
+*Question*: 
+1) What time did Alabaster click on the malicious link? Make sure to copy the exact timestamp from the logs!
+2) What file is dropped to Alabaster's machine shortly after he downloads the malicious file?
+
+*Query for question 1*:
+```kql
+OutboundNetworkEvents
+| where src_ip == "10.10.0.4" and url contains "http://madelvesnorthpole.org/published/search/MonthlyInvoiceForReindeerFood.docx"
+| project timestamp
+```
+
+*Answer for question 1*: `2023-12-02T10:12:42Z`
+
+*Query for question 2*:
+```kql
+FileCreationEvents
+| where hostname == "Y1US-DESKTOP" and timestamp > datetime("2023-12-02T10:12:42Z") and filename != "MonthlyInvoiceForReindeerFood.docx"
+| limit 1
+| project filename
+```
+
+*Answer for question 2*: `giftwrap.exe`
