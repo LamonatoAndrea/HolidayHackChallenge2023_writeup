@@ -12,7 +12,7 @@ Unlock the mysteries of JWTs with insights from [PortSwigger's JWT Guide](https:
 Going after the cookies, we can observe one being `ElfHunt_JWT=eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzcGVlZCI6LTUwMH0.` which is an unsigned JWT so it can be easily decoded and altered with [jwt.io](jwt.io):
 | DESCRIPTION      | BASE64 ENCODED                         | DECODED                      |
 | ---------------- | -------------------------------------- | ---------------------------- | 
-| ORIGINAL HEADER  | `eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0`  | `{"alg":"none","typ":"JWT"}` |
+| ORIGINAL HEADER  | `eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0`  | `{"alg":"none","typ":"JWT"}`{:.language-js} |
 | ORIGINAL PAYLOAD | `eyJzcGVlZCI6LTUwMH0`                  | `{"speed":-500}`             |
 | ALTERED PAYLOAD  | `eyJzcGVlZCI6LTUwfQ`                   | `{"speed":-50}`              |
 
