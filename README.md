@@ -61,10 +61,7 @@ I got myself a [Super Honorable Mention](https://www.sans.org/mlp/holiday-hack-c
 ## [BONUS! Fishing Mastery](/24%20-%20BONUS%21%20Fishing%20Mastery/README.md)
 
 ## Conclusions
-Hey folks, nice seeing you again! This is like the 5th year in a row, it starts to become a habit. Thanks for this year’s challenge: Jack is back! Obviously AI was used along the whole thing, to write code and
-especially to FORMAT IT - such a time saver! Those GB challenges were NICE and coincidentally I
-just recently started playing Pokemon Black with the Lemuroid emulator, I don’t think I’ll play anything
-similar to a GameBoy for a while now! KUDOS again for the effort, I would have never expected lockpicking or satellite challenges! As someone said [Every Rose Has Its Thorn](https://www.youtube.com/watch?v=j2r2nDhTzO4) and for me it was [The Captain's Comms](https://github.com/LamonatoAndrea/KringleCon5/tree/master/04%20-%20Recover%20the%20Web%20Ring/04.06%20-%20Glamtariel's%20Fountain). I would much rather spend days & nights getting defeated by Game Cartridges: Vol 2 than trying to guess a filename, but that’s me. So...till we meet each other next year!
+Hey folks, nice seeing you again! This is like the 5th year in a row, it starts to become a habit. Thanks for this year’s challenge: Jack is back! Obviously AI was used along the whole thing, to write code and especially to FORMAT IT - such a time saver! 🙂 Those GB challenges were NICE and coincidentally I just recently started playing Pokemon Black with the Lemuroid emulator, I don’t think I’ll play anything similar to a GameBoy for a while now 🙂 And KUDOS for the again for the effort, I would have never expected lockpicking or satellite challenges! As someone said [Every Rose Has Its Thorn](https://www.youtube.com/watch?v=j2r2nDhTzO4) and for me it was [The Captain's Comms](https://github.com/LamonatoAndrea/KringleCon5/tree/master/04%20-%20Recover%20the%20Web%20Ring/04.06%20-%20Glamtariel's%20Fountain). I would much rather spend days & nights getting defeated by Game Cartridges: Vol 2 than trying to guess a filename, but that’s me 🙂 So…till we meet each other next year!
 
 ### Gotta fit ‘em all
 As this year I could not give you many memes, I wrote a quick downloader that given a JSON of all fishes,
