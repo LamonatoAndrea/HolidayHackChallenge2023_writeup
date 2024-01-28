@@ -11,8 +11,7 @@ $krb5asrep$23$alabaster_snowball@XMAS.LOCAL:22865a2bceeaa73227ea4021879eda02$8f0
 To use it with hashcat, we can specify the hash type with `-m 18200` (`Kerberos 5, etype 23, AS-REP`)
 that allows to crack the file using the dictionary file `password_list.txt`:
 ```bash
-elf@122153c22aa8:~$ hashcat --force -w 1 -u 1 --kernel-accel 1 --kernel-loops 1 -m 18200 -a 0 hash.txt
-password_list.txt
+elf@122153c22aa8:~$ hashcat --force -w 1 -u 1 --kernel-accel 1 --kernel-loops 1 -m 18200 -a 0 hash.txt password_list.txt
 hashcat (v5.1.0) starting...
 # Output removed to shorten report
 $krb5asrep$23$alabaster_snowball@XMAS.LOCAL:22865a2bceeaa73227ea4021879eda02$8f07417379e610e2dcb0621462f
