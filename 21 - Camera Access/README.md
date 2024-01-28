@@ -21,13 +21,13 @@ PORT     STATE SERVICE
 3306/tcp open  mysql
 ```
 
-I then used the `Consumer Test Tool` to connect to `maltcp://10.1.1.1:1024/nanosat-mo-supervisor-Directory`, I noticed the `camera` app and started it. I then connected to `maltcp://10.1.1.1:1025/camera-Directory`. This exposed the action service `Base64SnapImage` to get a photo along with two parameter services: `NumberOfSnapsTaken` and `Base64SnapImage` to get the base64 encoded content of the image. After submitting the action `Base64SnapImage`, I noticed that `NumberOfSnapsTaken` increased and `Base64SnapImage` had some content. Due to the challenging interface of the CTT, I captured the traffic with Wireshark on the host and extracted the Base64 encoded payload:
+I then used the `Consumer Test Tool` to connect to `maltcp://10.1.1.1:1024/nanosat-mo-supervisor-Directory`, I noticed the `camera` app and started it. I then connected to `maltcp://10.1.1.1:1025/camera-Directory`. This exposed the action service `Base64SnapImage` to get a photo along with two parameter services: `NumberOfSnapsTaken` and `Base64SnapImage` to get the base64 encoded content of the image. After submitting the action `Base64SnapImage`, I noticed that `NumberOfSnapsTaken` increased and `Base64SnapImage` had some content. Due to the challenging interface of the CTT, I captured the traffic with Wireshark on the host and extracted the Base64 encoded payload:  
 ![wireshark](imgs/wireshark.png)
 
-Once converted to an image I got this:
+Once converted to an image I got this:  
 ![camera](imgs/camera.png)
 
-It’s not beautiful but I could find the TODO list with the third item being `CONQUER HOLIDAY SEASON!`:
+It’s not beautiful but I could find the TODO list with the third item being `CONQUER HOLIDAY SEASON!`:  
 ![todo](imgs/todo.png)
 
 
