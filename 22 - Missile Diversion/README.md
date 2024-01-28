@@ -27,10 +27,4 @@ id: 1 \| numerical_mode: 0 \|
 id: 1 lat: 1.14514 \| Ing: -145.262 \|  
 #### **Query**: `; SELECT * FROM satellite_query`
 VERSION(): 11.2.2-MariaDB-1:11.2.2+maria~ubu2204 | 
-jid: 1 | object: `........sr..SatelliteQueryFileFolderUtility.......................Z..isQueryZ..isUpdateL..pathOrStatementt..Ljava/lang/String;xp..t.)/opt/SatelliteQueryFileFolderUtility.java` | results: 
-```
-import java.io.Serializable;
-# Output removed to shorten report
-public class SatelliteQueryFileFolderUtility implements Serializable {
-# Output removed to shorten report
-```
+jid: 1 | object: `........sr..SatelliteQueryFileFolderUtility.......................Z..isQueryZ..isUpdateL..pathOrStatementt..Ljava/lang/String;xp..t.)/opt/SatelliteQueryFileFolderUtility.java` | results: `import java.io.Serializable; /* Output removed to shorten report */ public class SatelliteQueryFileFolderUtility implements Serializable { /* Output removed to shorten report */`
