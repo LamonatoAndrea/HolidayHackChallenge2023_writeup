@@ -88,3 +88,4 @@ for fish in fishes:
 ```
 Then Gimp’ed it and here I leave you with this nice fish picture. I wanted this to be the last thing you’d see in the report. Say hi to Piscis Cyberneticus Skodo (aka Ed Skoudis) for me and drop me an email if you’d like the image. It has been kind of a thing the last 2 years
 ![gotta_catch_em_all](imgs/Montage_1024.png)
+[Link to the full size image of 250MB](https://drive.google.com/file/d/1RZGiakjoPnuzsulGtjh1R841MxsP-bGb/view?usp=drive_link)
