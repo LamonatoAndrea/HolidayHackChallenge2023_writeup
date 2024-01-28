@@ -30,6 +30,11 @@ Linkedin: https://www.linkedin.com/in/andrea-lamonato/
                    |___/                     
 ```
 
+### Super Honorable Mention
+I got myself a [Super Honorable Mention](https://www.sans.org/mlp/holiday-hack-challenge-2023/winners-and-answers/) submitting the writeup for this challenge, thank you guys!  
+![super honorable mention](imgs/superhonorablemention.png)
+
+
 ## [Holiday Hack Orientation](/01%20-%20Holiday%20Hack%20Orientation/README.md)
 ## [Snowball Fight](/02%20-%20Snowball%20Fight/README.md)
 ## [Linux 101](/03%20-%20Linux%20101/README.md)
