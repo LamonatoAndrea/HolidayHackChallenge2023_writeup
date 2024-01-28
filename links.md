@@ -1,3 +1,4 @@
+## [thedead@dellian:~$ whoami](/README.md#thedeaddellian-whoami)
 ## [Holiday Hack Orientation](/01%20-%20Holiday%20Hack%20Orientation/README.md)
 ## [Snowball Fight](/02%20-%20Snowball%20Fight/README.md)
 ## [Linux 101](/03%20-%20Linux%20101/README.md)
@@ -22,3 +23,4 @@
 ## [Missile Diversion](/22%20-%20Missile%20Diversion/README.md)
 ## [BONUS! Fishing Guide](/23%20-%20BONUS%21%20Fishing%20Guide/README.md)
 ## [BONUS! Fishing Mastery](/24%20-%20BONUS%21%20Fishing%20Mastery/README.md)
+## [Conclusions](/README.md#conclusions)
