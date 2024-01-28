@@ -16,13 +16,20 @@ Looking for a file that was created on a victim system? Don't forget the FileCre
 
 ### Solution
 #### Onboarding
-##### Question
-How many Craftperson Elf's are working from laptops?
-##### Query
+**Question**: How many Craftperson Elf's are working from laptops?  
+**Query**:
 ```kql
 Employees 
 | where role == "Craftsperson Elf" and hostname contains "LAPTOP"
 | summarize count()
 ```
-##### Answer
-25
+**Answer**: `25`
+#### Case #1
+**Question**: How many Craftperson Elf's are working from laptops?  
+**Query**:
+```kql
+Employees 
+| where role == "Craftsperson Elf" and hostname contains "LAPTOP"
+| summarize count()
+```
+**Answer**: `25`
