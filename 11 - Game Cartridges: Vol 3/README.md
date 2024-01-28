@@ -14,8 +14,7 @@ The location of the treasure in Rusty Quay is marked by a shiny spot on the grou
 3) Isn’t this great?!? The coins are OVERFLOWing in their abundance.
 
 ### Solution
-By zooming out in the screen, the path to the cartridge is revealed, and highlighted in green in the image
-below:
+By zooming out in the screen, the path to the cartridge is revealed, and highlighted in green in the image below:
 ![maze](imgs/maze.png)  
 When saving coins are lost and can be restored with T-Wiz’s help. Using the bgb cheat searcher I eventually identified the registries that were changing/not changing accordingly to what was happening in the game:
 ![bgb_cheat_searcher](imgs/bgb_cheat_searcher.png)  
