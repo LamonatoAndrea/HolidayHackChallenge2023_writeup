@@ -65,4 +65,4 @@ This then allowed to access the content of the peaks in the previous image, reve
 | ---------------------------------- | ---------------------------------------------------- |
 | Just Watch This CW Decoder         | ![08_00_02_dcdCW_cut](imgs/08_00_02_dcdCW_cut.png)   |
 | Just Watch This Audio-Text Decoder | ![08_01_02_dcdNUM_cut](imgs/08_01_02_dcdNUM_cut.png) |
-| Just Watch This RadioFax Decoder   | ![08_02_02_dcdFX_cut](imgs/08_02_02_dcdFX_cut)       |
+| Just Watch This RadioFax Decoder   | ![08_02_02_dcdFX_cut](imgs/08_02_02_dcdFX_cut.png)   |
