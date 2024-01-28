@@ -5,7 +5,7 @@ Gain access to Jack's camera. What's the third item on Jack's TODO list?
 
 ### Hints
 #### Hubris is a Virtue
-*From: Wombley Cube*
+*From: Wombley Cube*  
 In his hubris, Wombley revealed that he thinks you won't be able to access the satellite's "Supervisor Directory". There must be a good reason he mentioned that specifically, and a way to access it. He also said there's someone else masterminding the whole plot. There must be a way to discover who that is using the nanosat.
 
 ### Solution
