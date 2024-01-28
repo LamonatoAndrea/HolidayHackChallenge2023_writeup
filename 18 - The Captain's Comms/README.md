@@ -50,3 +50,19 @@ uQIDAQAB
 ```
 Setting the value of the cookie `justWatchThisRole` to the content of `rMonitor.tok` I was able to access the `Just Watch This Signal Display` that returned a [gif](https://captainscomms.com/static/images/WaterfallPopOut.gif) with clickable peaks highlighted in the image below:
 ![07_01_WaterfallPopOut_with_peaks](imgs/07_01_WaterfallPopOut_with_peaks.png)
+
+Unfortunately, when clicking the peaks, I was being presented with an error requiring me to have the radioDecoder role.
+
+#### The rDecoder.tok - Leap of faith
+After so many failed attempts that it was just “not worth not to try” and in a total leap of faith, I eventually tried the url https://captainscomms.com/jwtDefault/rDecoder.tok and obtained the `rDecoder.tok`:
+```bash
+thedead@dellian:~/hhc2023/The Captain's Comms$ curl -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJISEMgMjAyMyBDYXB0YWluJ3MgQ29tbXMiLCJpYXQiOjE2OTk0ODU3OTUuMzQwMzMyNywiZXhwIjoxODA5OTM3Mzk1LjM0MDMzMjcsImF1ZCI6IkhvbGlkYXkgSGFjayAyMDIzIiwicm9sZSI6InJhZGlvTW9uaXRvciJ9.f_z24CMLim2JDKf8KP_PsJmMg3l_V9OzEwK1E_IBE9rrIGRVBZjqGpvTqAQQSesJD82LhK2h8dCcvUcF7awiAPpgZpcfM5jdkXR7DAKzaHAV0OwTRS6x_Uuo6tqGMu4XZVjGzTvba-eMGTHXyfekvtZr8uLLhvNxoarCrDLiwZ_cKLViRojGuRIhGAQCpumw6NTyLuUYovy_iymNfe7pqsXQNL_iyoUwWxfWcfwch7eGmf2mBrdEiTB6LZJ1ar0FONfrLGX19TV25Qy8auNWQIn6jczWM9WcZbuOIfOvlvKhyVWbPdAK3zB7OOm-DbWm1aFNYKr6JIRDLobPfiqhKg' https://captainscomms.com/jwtDefault/rDecoder.tok
+eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJISEMgMjAyMyBDYXB0YWluJ3MgQ29tbXMiLCJpYXQiOjE2OTk0ODU3OTUuMzQwMzMyNywiZXhwIjoxODA5OTM3Mzk1LjM0MDMzMjcsImF1ZCI6IkhvbGlkYXkgSGFjayAyMDIzIiwicm9sZSI6InJhZGlvRGVjb2RlciJ9.cnNu6EjIDBrq8PbMlQNF7GzTqtOOLO0Q2zAKBRuza9bHMZGFx0pOmeCy2Ltv7NUPv1yT9NZ-WapQ1-GNcw011Ssbxz0yQO3Mh2Tt3rS65dmb5cmYIZc0pol-imtclWh5s1OTGUtqSjbeeZ2QAMUFx3Ad93gR20pKpjmoeG_Iec4JHLTJVEksogowOouGyDxNAagIICSpe61F3MY1qTibOLSbq3UVfiIJS4XvGJwqbYfLdbhc-FvHWBUbHhAzIgTIyx6kfONOH9JBo2RRQKvN-0K37aJRTqbq99mS4P9PEVs0-YIIufUxJGIW0TdMNuVO3or6bIeVH6CjexIl14w6fg
+```
+
+This then allowed to access the content of the peaks in the previous image, revealing the content of the peaks:
+|                                    |                                                      |
+| ---------------------------------- | ---------------------------------------------------- |
+| Just Watch This CW Decoder         | ![08_00_02_dcdCW_cut](imgs/08_00_02_dcdCW_cut.png)   |
+| Just Watch This Audio-Text Decoder | ![08_01_02_dcdNUM_cut](imgs/08_01_02_dcdNUM_cut.png) |
+| Just Watch This RadioFax Decoder   | ![08_02_02_dcdFX_cut](imgs/08_02_02_dcdFX_cut)       |
