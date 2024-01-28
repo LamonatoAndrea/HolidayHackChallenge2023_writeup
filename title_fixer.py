@@ -9,9 +9,7 @@ dirs = []
 for filename in (os.listdir(directory)):
 	if re.match(r'^\d+.*?', filename):
 		dirs.append (filename)
-dirs.append("/")
 dirs.sort()
-
 
 dir_objs = []
 for d in dirs:
