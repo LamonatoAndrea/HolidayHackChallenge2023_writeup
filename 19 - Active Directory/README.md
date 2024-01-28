@@ -128,6 +128,13 @@ And he'll silently take his way.
 
 
 ---
+## [Space Island Door Access Speaker](/20%20-%20Space%20Island%20Door%20Access%20Speaker/README.md)
+## [Camera Access](/21%20-%20Camera%20Access/README.md)
+## [Missile Diversion](/22%20-%20Missile%20Diversion/README.md)
+## [BONUS! Fishing Guide](/23%20-%20BONUS%21%20Fishing%20Guide/README.md)
+## [BONUS! Fishing Mastery](/24%20-%20BONUS%21%20Fishing%20Mastery/README.md)
+## [Conclusions](/README.md#conclusions)
+---
 ## [thedead@dellian:~$ whoami](/README.md#thedeaddellian-whoami)
 ## [Holiday Hack Orientation](/01%20-%20Holiday%20Hack%20Orientation/README.md)
 ## [Snowball Fight](/02%20-%20Snowball%20Fight/README.md)
@@ -147,10 +154,3 @@ And he'll silently take his way.
 ## [Elf Hunt](/16%20-%20Elf%20Hunt/README.md)
 ## [Certificate SSHenanigans](/17%20-%20Certificate%20SSHenanigans/README.md)
 ## [The Captain's Comms](/18%20-%20The%20Captain%27s%20Comms/README.md)
----
-## [Space Island Door Access Speaker](/20%20-%20Space%20Island%20Door%20Access%20Speaker/README.md)
-## [Camera Access](/21%20-%20Camera%20Access/README.md)
-## [Missile Diversion](/22%20-%20Missile%20Diversion/README.md)
-## [BONUS! Fishing Guide](/23%20-%20BONUS%21%20Fishing%20Guide/README.md)
-## [BONUS! Fishing Mastery](/24%20-%20BONUS%21%20Fishing%20Mastery/README.md)
-## [Conclusions](/README.md#conclusions)
